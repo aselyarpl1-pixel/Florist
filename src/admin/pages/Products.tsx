@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Pencil, Trash2, Eye, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, Search, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +44,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Upload, X } from "lucide-react";
 import { uploadProductImage } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
+import { getProductImageUrl } from "@/lib/imageUtils";
 
 const Products = () => {
   const queryClient = useQueryClient();
@@ -51,37 +52,6 @@ const Products = () => {
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
   const deleteMutation = useDeleteProduct();
-
-  // Helper for image URLs
-  const getPublicImageUrl = (path: string) => {
-    if (!path) return '/placeholder.svg';
-    
-    // 1. If it's already a full URL or a data URL, return it
-    if (path.startsWith('http') || path.startsWith('data:')) {
-      return path;
-    }
-
-    // 2. If it looks like a local asset (starts with /src or /assets), return it
-    if (path.startsWith('/src/') || path.startsWith('/assets/')) {
-      return path;
-    }
-
-    // 3. If Supabase is NOT configured, treat it as a local path or placeholder
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY || 
-        import.meta.env.VITE_SUPABASE_URL.includes('placeholder')) {
-      return path;
-    }
-
-    // 4. Otherwise, it's likely a Supabase Storage path
-    // Assumes images are in a bucket named 'product-images'
-    try {
-      const { data } = supabase.storage.from('product-images').getPublicUrl(path);
-      return data?.publicUrl || '/placeholder.svg';
-    } catch (e) {
-      console.error("Error getting public URL from Supabase:", e);
-      return path;
-    }
-  };
 
   // Auto-sync default products if list is empty
   useEffect(() => {
@@ -354,6 +324,46 @@ const Products = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              if (confirm("Sinkronisasi ulang akan memperbarui data produk dengan data default. Lanjutkan?")) {
+                const sync = async () => {
+                  try {
+                    toast.loading("Menyinkronkan data...");
+                    for (const p of defaultProducts) {
+                      await productsApi.upsert({
+                        slug: p.slug,
+                        name: p.name,
+                        price: p.price,
+                        original_price: p.originalPrice,
+                        category: p.category,
+                        description: p.description,
+                        image_url: p.images[0],
+                        is_active: p.isActive ?? true,
+                        is_featured: p.featured ?? false,
+                        is_best_seller: p.bestSeller ?? false,
+                        is_exclusive: p.exclusive ?? false,
+                        is_premium: p.premium ?? false,
+                      });
+                    }
+                    toast.dismiss();
+                    toast.success("Data berhasil disinkronkan");
+                    queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
+                  } catch (error) {
+                    toast.dismiss();
+                    toast.error("Gagal menyinkronkan data");
+                    console.error(error);
+                  }
+                };
+                sync();
+              }
+            }}
+            className="gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Sinkronkan Data
+          </Button>
           <Button onClick={() => handleOpenDialog()} className="gap-2">
             <Plus className="w-4 h-4" />
             Tambah Produk
@@ -648,7 +658,7 @@ const Products = () => {
                 <div className="relative w-24 h-24 border rounded-md overflow-hidden bg-muted flex items-center justify-center">
                   {imagePreview || formData.image_url ? (
                     <img
-                      src={imagePreview || getPublicImageUrl(formData.image_url)}
+                      src={imagePreview || getProductImageUrl(formData.image_url)}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
