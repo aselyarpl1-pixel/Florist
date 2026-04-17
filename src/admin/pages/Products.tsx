@@ -43,6 +43,7 @@ import { Product, productsApi } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Upload, X } from "lucide-react";
 import { uploadProductImage } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
 
 const Products = () => {
   const queryClient = useQueryClient();
@@ -50,6 +51,37 @@ const Products = () => {
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
   const deleteMutation = useDeleteProduct();
+
+  // Helper for image URLs
+  const getPublicImageUrl = (path: string) => {
+    if (!path) return '/placeholder.svg';
+    
+    // 1. If it's already a full URL or a data URL, return it
+    if (path.startsWith('http') || path.startsWith('data:')) {
+      return path;
+    }
+
+    // 2. If it looks like a local asset (starts with /src or /assets), return it
+    if (path.startsWith('/src/') || path.startsWith('/assets/')) {
+      return path;
+    }
+
+    // 3. If Supabase is NOT configured, treat it as a local path or placeholder
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY || 
+        import.meta.env.VITE_SUPABASE_URL.includes('placeholder')) {
+      return path;
+    }
+
+    // 4. Otherwise, it's likely a Supabase Storage path
+    // Assumes images are in a bucket named 'product-images'
+    try {
+      const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+      return data?.publicUrl || '/placeholder.svg';
+    } catch (e) {
+      console.error("Error getting public URL from Supabase:", e);
+      return path;
+    }
+  };
 
   // Auto-sync default products if list is empty
   useEffect(() => {
@@ -134,9 +166,9 @@ const Products = () => {
 
   const handleOpenDialog = (product?: Product) => {
     setSelectedFile(null);
+    setImagePreview(null);
     if (product) {
       setEditingProduct(product);
-      setImagePreview(product.image_url || null);
       setFormData({
         name: product.name,
         price: product.price,
@@ -614,9 +646,9 @@ const Products = () => {
               <Label htmlFor="image_url">Gambar Produk</Label>
               <div className="flex items-center gap-4">
                 <div className="relative w-24 h-24 border rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                  {imagePreview ? (
+                  {imagePreview || formData.image_url ? (
                     <img
-                      src={imagePreview}
+                      src={imagePreview || getPublicImageUrl(formData.image_url)}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
@@ -660,7 +692,7 @@ const Products = () => {
                       value={formData.image_url}
                       onChange={(e) => {
                         setFormData({ ...formData, image_url: e.target.value });
-                        setImagePreview(e.target.value);
+                        setImagePreview(null); // Clear file preview if using manual URL
                         setSelectedFile(null); // Clear file if using manual URL
                       }}
                       placeholder="https://example.com/image.jpg"

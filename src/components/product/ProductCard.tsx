@@ -27,12 +27,33 @@ const ProductCard = ({ product }: ProductCardProps) => {
   
   // Construct full public URL from Supabase Storage if it's a relative path
   const getPublicImageUrl = (path: string) => {
-    if (!path || path.startsWith('http')) {
-      return path; // It's already a full URL or empty
+    if (!path) return '/placeholder.svg';
+    
+    // 1. If it's already a full URL or a data URL, return it
+    if (path.startsWith('http') || path.startsWith('data:')) {
+      return path;
     }
+
+    // 2. If it looks like a local asset (starts with /src or /assets), return it
+    if (path.startsWith('/src/') || path.startsWith('/assets/')) {
+      return path;
+    }
+
+    // 3. If Supabase is NOT configured, treat it as a local path or placeholder
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY || 
+        import.meta.env.VITE_SUPABASE_URL.includes('placeholder')) {
+      return path;
+    }
+
+    // 4. Otherwise, it's likely a Supabase Storage path
     // Assumes images are in a bucket named 'product-images'
-    const { data } = supabase.storage.from('product-images').getPublicUrl(path);
-    return data?.publicUrl || '/placeholder.svg';
+    try {
+      const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+      return data?.publicUrl || '/placeholder.svg';
+    } catch (e) {
+      console.error("Error getting public URL from Supabase:", e);
+      return path;
+    }
   };
 
   const imageUrl = getPublicImageUrl(rawImages[0]) || '/placeholder.svg';
