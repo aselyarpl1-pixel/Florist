@@ -30,8 +30,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
     if (!path || path.startsWith('http')) {
       return path; // It's already a full URL or empty
     }
-    // Assumes images are in a bucket named 'products'
-    const { data } = supabase.storage.from('products').getPublicUrl(path);
+    // Assumes images are in a bucket named 'product-images'
+    const { data } = supabase.storage.from('product-images').getPublicUrl(path);
     return data?.publicUrl || '/placeholder.svg';
   };
 
