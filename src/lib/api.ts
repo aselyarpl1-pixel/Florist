@@ -493,6 +493,59 @@ export interface HomeContent {
   };
 }
 
+export interface FloatingButton {
+  id: string;
+  label: string;
+  href: string;
+  color: string;
+  icon: string;
+  visible: boolean;
+}
+
+export interface FloatingMenuConfig {
+  whatsappText: string;
+  buttons: FloatingButton[];
+}
+
+export const floatingMenuApi = {
+  get: async (): Promise<FloatingMenuConfig | null> => {
+    if (!isSupabaseConfigured) {
+      const local = localStorage.getItem("floating_menu");
+      return local ? JSON.parse(local) : null;
+    }
+    try {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "floating_menu")
+        .maybeSingle();
+
+      if (error) return null;
+      if (!data?.value) return null;
+
+      return JSON.parse(data.value as string) as FloatingMenuConfig;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  save: async (config: FloatingMenuConfig) => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem("floating_menu", JSON.stringify(config));
+      return true;
+    }
+    const { error } = await supabase.from("site_settings").upsert({
+      key: "floating_menu",
+      value: JSON.stringify(config),
+    }, {
+      onConflict: 'key'
+    });
+
+    if (error) throw error;
+    return true;
+  },
+};
+
 export const homeContentApi = {
   get: async (): Promise<HomeContent | null> => {
     if (!isSupabaseConfigured) {

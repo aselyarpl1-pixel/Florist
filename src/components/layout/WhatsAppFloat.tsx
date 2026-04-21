@@ -2,10 +2,12 @@ import { FaWhatsapp } from "react-icons/fa";
 import { getWhatsAppUrl, getProductWhatsAppUrl } from "@/config/whatsapp";
 import { useLocation, useParams } from "react-router-dom";
 import { useProductBySlug } from "@/hooks/useProducts";
+import { useFloatingMenu } from "@/hooks/useFloatingMenu";
 
 const WhatsAppFloat = () => {
   const location = useLocation();
   const params = useParams<{ slug: string }>();
+  const { data: floatingConfig } = useFloatingMenu();
   
   // Extract slug from URL path if useParams is empty (which happens if component is outside Route)
   const pathSlug = location.pathname.startsWith('/produk/') 
@@ -48,7 +50,7 @@ const WhatsAppFloat = () => {
     >
 
       {/* Text */}
-      <span>Kami Hadir 24 Jam</span>
+      <span>{floatingConfig?.whatsappText || "Kami Hadir 24 Jam"}</span>
 
 
       {/* WhatsApp Icon */}

@@ -1,18 +1,22 @@
 import { useState, useEffect } from "react";
-import { Save } from "lucide-react";
+import { Save, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useHomeContent, useSaveHomeContent } from "@/hooks/useHomeContent";
-import { HomeContent } from "@/lib/api";
+import { useFloatingMenu, useSaveFloatingMenu } from "@/hooks/useFloatingMenu";
+import { HomeContent, FloatingButton } from "@/lib/api";
 
 const HomePage = () => {
   const { data: serverContent, isLoading } = useHomeContent();
   const { mutate: saveContent, isPending } = useSaveHomeContent();
+  const { data: floatingMenu, isLoading: isFloatingLoading } = useFloatingMenu();
+  const { mutate: saveFloatingMenu, isPending: isSavingFloating } = useSaveFloatingMenu();
 
   const [heroContent, setHeroContent] = useState({
     subtitle: "Premium Gift & Flower Shop",
@@ -56,6 +60,14 @@ const HomePage = () => {
     sectionDescription: "Kepuasan pelanggan adalah prioritas utama kami. Lihat apa kata mereka tentang produk dan layanan BloomGift.",
   });
 
+  const [floatingMenuConfig, setFloatingMenuConfig] = useState({
+    whatsappText: "Kami Hadir 24 Jam",
+    buttons: [
+      { id: "1", label: "Papan Bunga", href: "/katalog?kategori=papan-bunga", color: "red", icon: "TreePine", visible: true },
+      { id: "2", label: "Katalog Parsel Natal", href: "/katalog?kategori=parsel-natal", color: "red", icon: "Gift", visible: true },
+    ] as FloatingButton[]
+  });
+
   useEffect(() => {
     if (serverContent) {
       if (serverContent.hero) setHeroContent(serverContent.hero);
@@ -63,7 +75,10 @@ const HomePage = () => {
       if (serverContent.cta) setCtaContent(serverContent.cta);
       if (serverContent.testimonials) setTestimonialsContent(serverContent.testimonials);
     }
-  }, [serverContent]);
+    if (floatingMenu) {
+      setFloatingMenuConfig(floatingMenu);
+    }
+  }, [serverContent, floatingMenu]);
 
   const handleSave = () => {
     const payload: HomeContent = {
@@ -88,7 +103,43 @@ const HomePage = () => {
   const handleSaveFeatures = () => handleSave();
   const handleSaveCTA = () => handleSave();
 
-  if (isLoading) {
+  const handleSaveFloatingMenu = () => {
+    saveFloatingMenu(floatingMenuConfig, {
+      onSuccess: () => toast.success("Menu melayang berhasil disimpan"),
+      onError: () => toast.error("Gagal menyimpan menu melayang")
+    });
+  };
+
+  const addFloatingButton = () => {
+    const newButton: FloatingButton = {
+      id: Date.now().toString(),
+      label: "Tombol Baru",
+      href: "/",
+      color: "red",
+      icon: "Gift",
+      visible: true
+    };
+    setFloatingMenuConfig({
+      ...floatingMenuConfig,
+      buttons: [...floatingMenuConfig.buttons, newButton]
+    });
+  };
+
+  const removeFloatingButton = (id: string) => {
+    setFloatingMenuConfig({
+      ...floatingMenuConfig,
+      buttons: floatingMenuConfig.buttons.filter(b => b.id !== id)
+    });
+  };
+
+  const updateFloatingButton = (id: string, updates: Partial<FloatingButton>) => {
+    setFloatingMenuConfig({
+      ...floatingMenuConfig,
+      buttons: floatingMenuConfig.buttons.map(b => b.id === id ? { ...b, ...updates } : b)
+    });
+  };
+
+  if (isLoading || isFloatingLoading) {
     return <div className="p-8">Memuat data...</div>;
   }
 
@@ -100,7 +151,7 @@ const HomePage = () => {
           Manajemen Home Page
         </h1>
         <p className="text-muted-foreground mt-2">
-          Kelola konten halaman beranda website
+          Kelola konten halaman beranda dan menu melayang
         </p>
       </div>
 
@@ -110,6 +161,7 @@ const HomePage = () => {
           <TabsTrigger value="features">Keunggulan</TabsTrigger>
           <TabsTrigger value="testimonials">Testimoni</TabsTrigger>
           <TabsTrigger value="cta">CTA Section</TabsTrigger>
+          <TabsTrigger value="floating">Menu Melayang</TabsTrigger>
         </TabsList>
 
         {/* Hero Section */}
@@ -402,6 +454,89 @@ const HomePage = () => {
                 <Button onClick={handleSave} className="gap-2">
                   <Save className="w-4 h-4" />
                   Simpan Perubahan
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Floating Menu Section */}
+        <TabsContent value="floating" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Menu Melayang (Floating Menu)</CardTitle>
+              <CardDescription>
+                Kelola tombol-tombol yang melayang di pojok kanan bawah
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* WhatsApp Text */}
+              <div className="space-y-2">
+                <Label htmlFor="whatsappText">Teks Tombol WhatsApp (Hijau)</Label>
+                <Input
+                  id="whatsappText"
+                  value={floatingMenuConfig.whatsappText}
+                  onChange={(e) => setFloatingMenuConfig({ ...floatingMenuConfig, whatsappText: e.target.value })}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-4 pt-4 border-t">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium">Tombol Aksi (Merah)</h3>
+                  <Button type="button" variant="outline" size="sm" onClick={addFloatingButton} className="gap-1">
+                    <Plus className="w-4 h-4" />
+                    Tambah Tombol
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  {floatingMenuConfig.buttons.map((button) => (
+                    <div key={button.id} className="p-4 border rounded-lg bg-accent/30 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <Switch 
+                            checked={button.visible} 
+                            onCheckedChange={(checked) => updateFloatingButton(button.id, { visible: checked })}
+                          />
+                          <span className="text-sm font-medium">{button.label || "Tanpa Label"}</span>
+                        </div>
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-destructive"
+                          onClick={() => removeFloatingButton(button.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Label Tombol</Label>
+                          <Input 
+                            value={button.label}
+                            onChange={(e) => updateFloatingButton(button.id, { label: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Link (URL)</Label>
+                          <Input 
+                            value={button.href}
+                            onChange={(e) => updateFloatingButton(button.id, { href: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Button onClick={handleSaveFloatingMenu} disabled={isSavingFloating} className="gap-2">
+                  <Save className="w-4 h-4" />
+                  {isSavingFloating ? "Menyimpan..." : "Simpan Menu Melayang"}
                 </Button>
               </div>
             </CardContent>
