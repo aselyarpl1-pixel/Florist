@@ -5,11 +5,18 @@ import { useFloatingMenu } from "@/hooks/useFloatingMenu";
 const FloatingMenu = () => {
   const { data: config, isLoading } = useFloatingMenu();
 
-  if (isLoading || !config || !config.buttons || config.buttons.length === 0) {
+  if (isLoading) {
     return null;
   }
 
-  const visibleButtons = config.buttons.filter(b => b.visible);
+  // Default buttons if no config found in database
+  const defaultButtons = [
+    { id: "1", label: "Papan Bunga", href: "/katalog?kategori=papan-bunga", color: "red", icon: "TreePine", visible: true },
+    { id: "2", label: "Katalog Parsel Natal", href: "/katalog?kategori=parsel-natal", color: "red", icon: "Gift", visible: true },
+  ];
+
+  const buttons = config?.buttons || defaultButtons;
+  const visibleButtons = buttons.filter(b => b.visible);
 
   if (visibleButtons.length === 0) return null;
 
