@@ -1,8 +1,17 @@
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
+import { useHomeContent } from "@/hooks/useHomeContent";
 
 const CTASection = () => {
+  const { data: content } = useHomeContent();
+  const ctaContent = content?.cta || {
+    title: "Butuh Bantuan Memilih",
+    titleHighlight: "Hadiah Sempurna?",
+    description: "Tim kami siap membantu Anda menemukan produk yang tepat untuk setiap momen spesial. Konsultasikan kebutuhan Anda secara gratis melalui WhatsApp!",
+    buttonText: "Chat via WhatsApp",
+  };
+
   return (
     <section className="section-padding bg-foreground text-background relative overflow-hidden">
       {/* Decorative elements */}
@@ -12,11 +21,10 @@ const CTASection = () => {
       <div className="container-custom relative z-10">
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h2 className="heading-section">
-            Butuh Bantuan Memilih <span className="text-primary">Hadiah Sempurna?</span>
+            {ctaContent.title} <span className="text-primary">{ctaContent.titleHighlight}</span>
           </h2>
           <p className="text-background/70 text-lg leading-relaxed">
-            Tim kami siap membantu Anda menemukan produk yang tepat untuk setiap 
-            momen spesial. Konsultasikan kebutuhan Anda secara gratis melalui WhatsApp!
+            {ctaContent.description}
           </p>
           <div className="pt-4">
             <a
@@ -29,7 +37,7 @@ const CTASection = () => {
                 className="bg-whatsapp hover:bg-whatsapp/90 text-white rounded-full px-8 gap-2"
               >
                 <MessageCircle className="w-5 h-5" />
-                Chat via WhatsApp
+                {ctaContent.buttonText}
               </Button>
             </a>
           </div>

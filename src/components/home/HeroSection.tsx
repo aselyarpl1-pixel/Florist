@@ -3,8 +3,22 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
 import heroImage from "@/assets/hero-image.jpg";
+import { useHomeContent } from "@/hooks/useHomeContent";
 
 const HeroSection = () => {
+  const { data: content } = useHomeContent();
+  const heroContent = content?.hero || {
+    subtitle: "Premium Gift & Flower Shop",
+    title: "Hadirkan Kebahagiaan di",
+    titleHighlight: "Setiap Momen",
+    description: "Buket bunga segar, hampers eksklusif, dan dekorasi premium untuk momen spesial Anda. Pengiriman same-day untuk area Jakarta.",
+    ctaPrimary: "Lihat Katalog",
+    ctaSecondary: "Konsultasi Gratis",
+    statsCustomers: "1000+",
+    statsOrders: "5000+",
+    statsRating: "4.9"
+  };
+
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Background with gradient overlay */}
@@ -20,22 +34,21 @@ const HeroSection = () => {
           <div className="space-y-8 animate-fade-in-up">
             <div className="space-y-4">
               <p className="text-primary font-medium tracking-wider uppercase text-sm">
-                Premium Gift & Flower Shop
+                {heroContent.subtitle}
               </p>
               <h1 className="heading-display text-foreground">
-                Hadirkan Kebahagiaan di{" "}
-                <span className="text-primary">Setiap Momen</span>
+                {heroContent.title}{" "}
+                <span className="text-primary">{heroContent.titleHighlight}</span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
-                Buket bunga segar, hampers eksklusif, dan dekorasi premium untuk 
-                momen spesial Anda. Pengiriman same-day untuk area Jakarta.
+                {heroContent.description}
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/katalog">
                 <Button size="lg" className="btn-primary rounded-full px-8 gap-2 group">
-                  Lihat Katalog
+                  {heroContent.ctaPrimary}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
@@ -49,7 +62,7 @@ const HeroSection = () => {
                   variant="outline"
                   className="btn-outline-gold rounded-full px-8"
                 >
-                  Konsultasi Gratis
+                  {heroContent.ctaSecondary}
                 </Button>
               </a>
             </div>
@@ -57,17 +70,17 @@ const HeroSection = () => {
             {/* Trust badges */}
             <div className="flex items-center gap-8 pt-4">
               <div className="text-center">
-                <p className="font-heading text-3xl font-semibold text-primary">1000+</p>
+                <p className="font-heading text-3xl font-semibold text-primary">{heroContent.statsCustomers}</p>
                 <p className="text-sm text-muted-foreground">Pelanggan Puas</p>
               </div>
               <div className="w-px h-12 bg-border" />
               <div className="text-center">
-                <p className="font-heading text-3xl font-semibold text-primary">5000+</p>
+                <p className="font-heading text-3xl font-semibold text-primary">{heroContent.statsOrders}</p>
                 <p className="text-sm text-muted-foreground">Pesanan Terkirim</p>
               </div>
               <div className="w-px h-12 bg-border" />
               <div className="text-center">
-                <p className="font-heading text-3xl font-semibold text-primary">4.9</p>
+                <p className="font-heading text-3xl font-semibold text-primary">{heroContent.statsRating}</p>
                 <p className="text-sm text-muted-foreground">Rating</p>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,8 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { useHomeContent, useSaveHomeContent } from "@/hooks/useHomeContent";
+import { HomeContent } from "@/lib/api";
 
 const HomePage = () => {
+  const { data: serverContent, isLoading } = useHomeContent();
+  const { mutate: saveContent, isPending } = useSaveHomeContent();
+
   const [heroContent, setHeroContent] = useState({
     subtitle: "Premium Gift & Flower Shop",
     title: "Hadirkan Kebahagiaan di",
@@ -45,18 +50,39 @@ const HomePage = () => {
     buttonText: "Chat via WhatsApp",
   });
 
-  const handleSaveHero = () => {
-    // In production, this would save to backend
-    toast.success("Konten hero section berhasil disimpan");
+  useEffect(() => {
+    if (serverContent) {
+      if (serverContent.hero) setHeroContent(serverContent.hero);
+      if (serverContent.features) setFeaturesContent(serverContent.features);
+      if (serverContent.cta) setCtaContent(serverContent.cta);
+    }
+  }, [serverContent]);
+
+  const handleSave = () => {
+    const payload: HomeContent = {
+      hero: heroContent,
+      features: featuresContent,
+      cta: ctaContent,
+    };
+    
+    saveContent(payload, {
+      onSuccess: () => {
+        toast.success("Konten berhasil disimpan");
+      },
+      onError: (err) => {
+        console.error(err);
+        toast.error("Gagal menyimpan konten");
+      }
+    });
   };
 
-  const handleSaveFeatures = () => {
-    toast.success("Konten keunggulan berhasil disimpan");
-  };
+  const handleSaveHero = () => handleSave();
+  const handleSaveFeatures = () => handleSave();
+  const handleSaveCTA = () => handleSave();
 
-  const handleSaveCTA = () => {
-    toast.success("Konten CTA berhasil disimpan");
-  };
+  if (isLoading) {
+    return <div className="p-8">Memuat data...</div>;
+  }
 
   return (
     <div className="space-y-6">

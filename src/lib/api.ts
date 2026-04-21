@@ -354,6 +354,10 @@ export interface City {
 
 export const citiesApi = {
   getAll: async (): Promise<City[]> => {
+    if (!isSupabaseConfigured) {
+      const local = localStorage.getItem("cities");
+      return local ? JSON.parse(local) : [];
+    }
     try {
       const { data, error } = await supabase
         .from("site_settings")
@@ -376,6 +380,10 @@ export const citiesApi = {
   },
 
   save: async (cities: City[]) => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem("cities", JSON.stringify(cities));
+      return true;
+    }
     // Ensure we are using upsert with the correct conflict resolution
     const { error } = await supabase.from("site_settings").upsert({
       key: "cities",
@@ -426,6 +434,10 @@ export interface HomeContent {
 
 export const homeContentApi = {
   get: async (): Promise<HomeContent | null> => {
+    if (!isSupabaseConfigured) {
+      const local = localStorage.getItem("home_content");
+      return local ? JSON.parse(local) : null;
+    }
     try {
       const { data, error } = await supabase
         .from("site_settings")
@@ -446,9 +458,15 @@ export const homeContentApi = {
   },
 
   save: async (content: HomeContent) => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem("home_content", JSON.stringify(content));
+      return true;
+    }
     const { error } = await supabase.from("site_settings").upsert({
       key: "home_content",
       value: JSON.stringify(content),
+    }, {
+      onConflict: 'key'
     });
 
     if (error) throw error;
@@ -466,6 +484,10 @@ export interface WhatsAppConfig {
 
 export const whatsappConfigApi = {
   get: async (): Promise<WhatsAppConfig | null> => {
+    if (!isSupabaseConfigured) {
+      const local = localStorage.getItem("whatsapp_config");
+      return local ? JSON.parse(local) : null;
+    }
     try {
       const { data, error } = await supabase
         .from("site_settings")
@@ -486,9 +508,15 @@ export const whatsappConfigApi = {
   },
 
   save: async (config: WhatsAppConfig) => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem("whatsapp_config", JSON.stringify(config));
+      return true;
+    }
     const { error } = await supabase.from("site_settings").upsert({
       key: "whatsapp_config",
       value: JSON.stringify(config),
+    }, {
+      onConflict: 'key'
     });
 
     if (error) throw error;
@@ -508,6 +536,10 @@ export interface MenuItem {
 
 export const navigationApi = {
   get: async (): Promise<MenuItem[] | null> => {
+    if (!isSupabaseConfigured) {
+      const local = localStorage.getItem("navigation");
+      return local ? JSON.parse(local) : null;
+    }
     try {
       const { data, error } = await supabase
         .from("site_settings")
@@ -525,6 +557,10 @@ export const navigationApi = {
   },
 
   save: async (items: MenuItem[]) => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem("navigation", JSON.stringify(items));
+      return true;
+    }
     const { error } = await supabase.from("site_settings").upsert({
       key: "navigation",
       value: JSON.stringify(items),
