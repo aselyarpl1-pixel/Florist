@@ -258,7 +258,7 @@ npm run build
 
 ## 📞 Support
 
-Untuk pertanyaan atau issue, hubungi tim development BloomGift.
+Untuk pertanyaan atau issue, hubungi tim development Florist.
 
 ---
 

@@ -12,7 +12,7 @@ const TestimonialPreview = () => {
   const content = homeContent?.testimonials || {
     sectionSubtitle: "Testimoni",
     sectionTitle: "Apa Kata Pelanggan Kami",
-    sectionDescription: "Kepuasan pelanggan adalah prioritas utama kami. Lihat apa kata mereka tentang produk dan layanan BloomGift.",
+    sectionDescription: "Kepuasan pelanggan adalah prioritas utama kami. Lihat apa kata mereka tentang produk dan layanan Florist.",
   };
 
   const isLoading = isTestimonialsLoading || isHomeLoading;

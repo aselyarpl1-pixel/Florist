@@ -10,15 +10,15 @@ import { Button } from "@/components/ui/button";
 const Dashboard = () => {
   const { data: products = [] } = useProducts();
   const { data: testimonials = [] } = useTestimonials();
-  
+
   const totalProducts = products.length;
   // Assuming 'isActive' might not exist on all product types yet, defaulting to true if undefined for now
   // or checking specific logic. For now, let's assume all fetched products are relevant.
-  // If API returns all, we can filter if there's an active flag. 
-  // Based on previous files, there isn't a strict 'isActive' column in Supabase schema shown yet, 
+  // If API returns all, we can filter if there's an active flag.
+  // Based on previous files, there isn't a strict 'isActive' column in Supabase schema shown yet,
   // but let's keep the logic if it exists, or just count total.
-  const activeProducts = products.length; 
-  
+  const activeProducts = products.length;
+
   const totalTestimonials = testimonials.length;
   const totalCities = Object.values(citiesByIsland).flat().length;
 
@@ -72,7 +72,7 @@ const Dashboard = () => {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-heading font-bold text-foreground">
+        <h1 className="text-3xl font-heading font-bold text-foreground">        
           Dashboard Admin
         </h1>
         <p className="text-muted-foreground mt-2">
@@ -148,7 +148,7 @@ const Dashboard = () => {
                       {product.category}
                     </p>
                   </div>
-                  <span className="text-sm font-medium text-primary ml-4">
+                  <span className="text-sm font-medium text-primary ml-4">      
                     Rp {product.price.toLocaleString("id-ID")}
                   </span>
                 </div>
@@ -170,7 +170,7 @@ const Dashboard = () => {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">
+                      <p className="text-sm font-medium text-foreground">       
                         {testimonial.name}
                       </p>
                       <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
@@ -178,10 +178,10 @@ const Dashboard = () => {
                       </p>
                     </div>
                     <div className="flex items-center gap-1 ml-4">
-                      <span className="text-xs font-medium text-primary">
+                      <span className="text-xs font-medium text-primary">       
                         {testimonial.rating}
                       </span>
-                      <span className="text-xs text-muted-foreground">⭐</span>
+                      <span className="text-xs text-muted-foreground">⭐</span> 
                     </div>
                   </div>
                 </div>

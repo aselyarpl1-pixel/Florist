@@ -6,7 +6,7 @@ const WhyChooseUs = () => {
   
   const featuresContent = content?.features || {
     sectionSubtitle: "Mengapa Kami",
-    sectionTitle: "Keunggulan BloomGift",
+    sectionTitle: "Keunggulan Florist",
     sectionDescription: "Kami berkomitmen memberikan pengalaman terbaik untuk setiap pelanggan.",
     feature1Title: "Kualitas Premium",
     feature1Desc: "Hanya bunga segar dan produk berkualitas tinggi yang kami pilih untuk Anda.",

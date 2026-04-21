@@ -36,9 +36,8 @@ const HeroSection = () => {
               <p className="text-primary font-medium tracking-wider uppercase text-sm">
                 {heroContent.subtitle}
               </p>
-              <h1 className="heading-display text-foreground">
-                {heroContent.title}{" "}
-                <span className="text-primary">{heroContent.titleHighlight}</span>
+              <h1 className="heading-display text-foreground leading-tight">
+                {heroContent.title} <span className="text-primary">{heroContent.titleHighlight}</span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
                 {heroContent.description}
@@ -96,7 +95,7 @@ const HeroSection = () => {
                 <div className="aspect-[3/4]">
                   <img 
                     src={heroImage} 
-                    alt="BloomGift - Buket Bunga dan Hampers Premium" 
+                    alt="Florist - Buket Bunga dan Hampers Premium" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                   />
                 </div>

@@ -295,7 +295,7 @@ const HomePage = () => {
             <CardHeader>
               <CardTitle>Section Keunggulan</CardTitle>
               <CardDescription>
-                Edit konten "Mengapa Memilih BloomGift"
+                Edit konten "Mengapa Memilih Florist"
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
