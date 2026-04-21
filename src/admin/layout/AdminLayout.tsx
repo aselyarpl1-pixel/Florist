@@ -65,7 +65,7 @@ const AdminLayout = () => {
           <div className="flex items-center justify-between h-16 px-6 border-b border-border">
             <Link to="/admin/dashboard" className="flex items-center gap-2">
               <span className="font-heading text-xl font-semibold text-foreground">
-                Bloom<span className="text-primary">Gift</span>
+                Florist
               </span>
             </Link>
             <Button

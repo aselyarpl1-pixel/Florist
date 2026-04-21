@@ -50,13 +50,13 @@ const Testimonials = () => {
     subtitle: "Testimoni",
     title: "Kepuasan",
     titleHighlight: "Pelanggan",
-    description: "Baca pengalaman nyata dari ribuan pelanggan yang telah mempercayakan momen spesial mereka kepada BloomGift.",
+    description: "Baca pengalaman nyata dari ribuan pelanggan yang telah mempercayakan momen spesial mereka kepada Florist.",
   });
 
   const [ctaContent, setCtaContent] = useState({
     title: "Ingin Menjadi Pelanggan",
     titleHighlight: "Berikutnya?",
-    description: "Bergabunglah dengan ribuan pelanggan puas lainnya. Hubungi kami sekarang dan rasakan pelayanan terbaik dari BloomGift!",
+    description: "Bergabunglah dengan ribuan pelanggan puas lainnya. Hubungi kami sekarang dan rasakan pelayanan terbaik dari Florist!",
     buttonText: "Hubungi Kami via WhatsApp",
   });
 

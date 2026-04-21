@@ -33,7 +33,7 @@ const HomePage = () => {
 
   const [featuresContent, setFeaturesContent] = useState({
     sectionSubtitle: "Mengapa Kami",
-    sectionTitle: "Keunggulan BloomGift",
+    sectionTitle: "Keunggulan Florist",
     sectionDescription:
       "Kami berkomitmen memberikan pengalaman terbaik untuk setiap pelanggan.",
     feature1Title: "Kualitas Premium",
@@ -57,7 +57,7 @@ const HomePage = () => {
   const [testimonialsContent, setTestimonialsContent] = useState({
     sectionSubtitle: "Testimoni",
     sectionTitle: "Apa Kata Pelanggan Kami",
-    sectionDescription: "Kepuasan pelanggan adalah prioritas utama kami. Lihat apa kata mereka tentang produk dan layanan BloomGift.",
+    sectionDescription: "Kepuasan pelanggan adalah prioritas utama kami. Lihat apa kata mereka tentang produk dan layanan Florist.",
   });
 
   const [floatingMenuConfig, setFloatingMenuConfig] = useState({

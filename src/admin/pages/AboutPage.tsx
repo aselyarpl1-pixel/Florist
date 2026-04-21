@@ -17,15 +17,15 @@ const AboutPage = () => {
   const [heroContent, setHeroContent] = useState({
     subtitle: "Tentang Kami",
     title: "Cerita di Balik",
-    titleHighlight: "BloomGift",
+    titleHighlight: "Florist",
     description: "Bermula dari passion terhadap keindahan dan keinginan untuk menyebarkan kebahagiaan melalui hadiah yang bermakna.",
   });
 
   const [storyContent, setStoryContent] = useState({
     year: "Since 2018",
     title: "Perjalanan Kami",
-    paragraph1: "BloomGift didirikan pada tahun 2018 dengan visi sederhana namun kuat: membantu orang-orang mengekspresikan perasaan mereka melalui hadiah yang indah dan bermakna.",
-    paragraph2: "Berawal dari usaha rumahan kecil, kini BloomGift telah berkembang menjadi salah satu toko bunga dan hadiah premium terpercaya di Jakarta. Kami melayani ribuan pelanggan setiap bulannya, dari individu hingga perusahaan besar.",
+    paragraph1: "Florist didirikan pada tahun 2018 dengan visi sederhana namun kuat: membantu orang-orang mengekspresikan perasaan mereka melalui hadiah yang indah dan bermakna.",
+    paragraph2: "Berawal dari usaha rumahan kecil, kini Florist telah berkembang menjadi salah satu toko bunga dan hadiah premium terpercaya di Jakarta. Kami melayani ribuan pelanggan setiap bulannya, dari individu hingga perusahaan besar.",
     paragraph3: "Setiap buket, hampers, dan dekorasi yang kami buat adalah hasil dari kerja sama tim yang solid, kreativitas tanpa batas, dan komitmen untuk selalu memberikan yang terbaik.",
     buttonText: "Hubungi Kami",
   });

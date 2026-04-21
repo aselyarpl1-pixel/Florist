@@ -76,7 +76,7 @@ const Dashboard = () => {
           Dashboard Admin
         </h1>
         <p className="text-muted-foreground mt-2">
-          Selamat datang di panel admin BloomGift
+          Selamat datang di panel admin Florist
         </p>
       </div>
 
