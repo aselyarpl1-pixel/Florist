@@ -23,6 +23,7 @@ import AdminHomePage from "./admin/pages/HomePage";
 import AdminCities from "./admin/pages/Cities";
 import AdminWhatsApp from "./admin/pages/WhatsApp";
 import AdminSettings from "./admin/pages/Settings";
+import AdminAbout from "./admin/pages/AboutPage";
 import ProtectedRoute from "./admin/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="home" element={<AdminHomePage />} />
             <Route path="testimonials" element={<AdminTestimonials />} />
             <Route path="cities" element={<AdminCities />} />
+            <Route path="about" element={<AdminAbout />} />
             <Route path="whatsapp" element={<AdminWhatsApp />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>

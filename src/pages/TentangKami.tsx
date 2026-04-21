@@ -2,6 +2,7 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, Target, Award } from "lucide-react";
 import { getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
+import { useAboutContent } from "@/hooks/useAboutContent";
 
 const values = [
   {
@@ -27,6 +28,41 @@ const values = [
 ];
 
 const TentangKami = () => {
+  const { data: content, isLoading } = useAboutContent();
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </Layout>
+    );
+  }
+
+  const hero = content?.hero || {
+    subtitle: "Tentang Kami",
+    title: "Cerita di Balik",
+    titleHighlight: "BloomGift",
+    description: "Bermula dari passion terhadap keindahan dan keinginan untuk menyebarkan kebahagiaan melalui hadiah yang bermakna.",
+  };
+
+  const story = content?.story || {
+    year: "Since 2018",
+    title: "Perjalanan Kami",
+    paragraph1: "BloomGift didirikan pada tahun 2018 dengan visi sederhana namun kuat: membantu orang-orang mengekspresikan perasaan mereka melalui hadiah yang indah dan bermakna.",
+    paragraph2: "Berawal dari usaha rumahan kecil, kini BloomGift telah berkembang menjadi salah satu toko bunga dan hadiah premium terpercaya di Jakarta. Kami melayani ribuan pelanggan setiap bulannya, dari individu hingga perusahaan besar.",
+    paragraph3: "Setiap buket, hampers, dan dekorasi yang kami buat adalah hasil dari kerja sama tim yang solid, kreativitas tanpa batas, dan komitmen untuk selalu memberikan yang terbaik.",
+    buttonText: "Hubungi Kami",
+  };
+
+  const stats = content?.stats || {
+    years: "6+",
+    orders: "5000+",
+    customers: "1000+",
+    rating: "4.9",
+  };
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -34,14 +70,13 @@ const TentangKami = () => {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <p className="text-primary font-medium tracking-wider uppercase text-sm">
-              Tentang Kami
+              {hero.subtitle}
             </p>
             <h1 className="heading-display text-foreground">
-              Cerita di Balik <span className="text-primary">BloomGift</span>
+              {hero.title} <span className="text-primary">{hero.titleHighlight}</span>
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Bermula dari passion terhadap keindahan dan keinginan untuk 
-              menyebarkan kebahagiaan melalui hadiah yang bermakna.
+              {hero.description}
             </p>
           </div>
         </div>
@@ -58,7 +93,7 @@ const TentangKami = () => {
                   <div className="w-32 h-32 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
                     <span className="text-5xl">💐</span>
                   </div>
-                  <p className="font-heading text-xl text-foreground">Since 2018</p>
+                  <p className="font-heading text-xl text-foreground">{story.year}</p>
                 </div>
               </div>
               <div className="absolute -bottom-4 -right-4 w-full h-full border-2 border-primary rounded-2xl -z-10" />
@@ -67,25 +102,12 @@ const TentangKami = () => {
             {/* Content */}
             <div className="space-y-6">
               <h2 className="heading-section text-foreground">
-                Perjalanan Kami
+                {story.title}
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
-                <p>
-                  BloomGift didirikan pada tahun 2018 dengan visi sederhana namun 
-                  kuat: membantu orang-orang mengekspresikan perasaan mereka melalui 
-                  hadiah yang indah dan bermakna.
-                </p>
-                <p>
-                  Berawal dari usaha rumahan kecil, kini BloomGift telah berkembang 
-                  menjadi salah satu toko bunga dan hadiah premium terpercaya di 
-                  Jakarta. Kami melayani ribuan pelanggan setiap bulannya, dari 
-                  individu hingga perusahaan besar.
-                </p>
-                <p>
-                  Setiap buket, hampers, dan dekorasi yang kami buat adalah hasil 
-                  dari kerja sama tim yang solid, kreativitas tanpa batas, dan 
-                  komitmen untuk selalu memberikan yang terbaik.
-                </p>
+                <p>{story.paragraph1}</p>
+                <p>{story.paragraph2}</p>
+                {story.paragraph3 && <p>{story.paragraph3}</p>}
               </div>
               <a
                 href={getWhatsAppUrl(WHATSAPP_CONFIG.consultationMessage)}
@@ -93,7 +115,7 @@ const TentangKami = () => {
                 rel="noopener noreferrer"
               >
                 <Button className="btn-primary rounded-full px-8 mt-4">
-                  Hubungi Kami
+                  {story.buttonText || "Hubungi Kami"}
                 </Button>
               </a>
             </div>
@@ -139,19 +161,19 @@ const TentangKami = () => {
         <div className="container-custom">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
             <div className="space-y-2">
-              <p className="font-heading text-4xl md:text-5xl font-semibold text-primary">6+</p>
+              <p className="font-heading text-4xl md:text-5xl font-semibold text-primary">{stats.years}</p>
               <p className="text-background/70">Tahun Pengalaman</p>
             </div>
             <div className="space-y-2">
-              <p className="font-heading text-4xl md:text-5xl font-semibold text-primary">5000+</p>
+              <p className="font-heading text-4xl md:text-5xl font-semibold text-primary">{stats.orders}</p>
               <p className="text-background/70">Pesanan Terkirim</p>
             </div>
             <div className="space-y-2">
-              <p className="font-heading text-4xl md:text-5xl font-semibold text-primary">1000+</p>
+              <p className="font-heading text-4xl md:text-5xl font-semibold text-primary">{stats.customers}</p>
               <p className="text-background/70">Pelanggan Puas</p>
             </div>
             <div className="space-y-2">
-              <p className="font-heading text-4xl md:text-5xl font-semibold text-primary">4.9</p>
+              <p className="font-heading text-4xl md:text-5xl font-semibold text-primary">{stats.rating}</p>
               <p className="text-background/70">Rating Kepuasan</p>
             </div>
           </div>

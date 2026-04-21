@@ -572,3 +572,67 @@ export const navigationApi = {
     return true;
   },
 };
+
+/* ==================== ABOUT US CONTENT ==================== */
+
+export interface AboutContent {
+  hero: {
+    subtitle: string;
+    title: string;
+    titleHighlight: string;
+    description: string;
+  };
+  story: {
+    year: string;
+    title: string;
+    paragraph1: string;
+    paragraph2: string;
+    paragraph3: string;
+    buttonText: string;
+  };
+  stats: {
+    years: string;
+    orders: string;
+    customers: string;
+    rating: string;
+  };
+}
+
+export const aboutContentApi = {
+  get: async (): Promise<AboutContent | null> => {
+    if (!isSupabaseConfigured) {
+      const local = localStorage.getItem("about_content");
+      return local ? JSON.parse(local) : null;
+    }
+    try {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "about_content")
+        .maybeSingle();
+
+      if (error) return null;
+      if (!data?.value) return null;
+
+      return JSON.parse(data.value as string) as AboutContent;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  save: async (content: AboutContent) => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem("about_content", JSON.stringify(content));
+      return true;
+    }
+    const { error } = await supabase.from("site_settings").upsert({
+      key: "about_content",
+      value: JSON.stringify(content),
+    }, {
+      onConflict: 'key'
+    });
+
+    if (error) throw error;
+    return true;
+  },
+};
