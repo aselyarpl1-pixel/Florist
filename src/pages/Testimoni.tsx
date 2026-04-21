@@ -2,10 +2,27 @@ import { Star, Quote } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
-import { useTestimonials } from "@/hooks/useTestimonials";
+import { useTestimonials, useTestimonialsContent } from "@/hooks/useTestimonials";
 
 const Testimoni = () => {
-  const { data: testimonials = [], isLoading } = useTestimonials();
+  const { data: testimonials = [], isLoading: isTestimonialsLoading } = useTestimonials();
+  const { data: content, isLoading: isContentLoading } = useTestimonialsContent();
+
+  const hero = content?.hero || {
+    subtitle: "Testimoni",
+    title: "Kepuasan",
+    titleHighlight: "Pelanggan",
+    description: "Baca pengalaman nyata dari ribuan pelanggan yang telah mempercayakan momen spesial mereka kepada BloomGift.",
+  };
+
+  const cta = content?.cta || {
+    title: "Ingin Menjadi Pelanggan",
+    titleHighlight: "Berikutnya?",
+    description: "Bergabunglah dengan ribuan pelanggan puas lainnya. Hubungi kami sekarang dan rasakan pelayanan terbaik dari BloomGift!",
+    buttonText: "Hubungi Kami via WhatsApp",
+  };
+
+  const isLoading = isTestimonialsLoading || isContentLoading;
 
   return (
     <Layout>
@@ -14,14 +31,13 @@ const Testimoni = () => {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <p className="text-primary font-medium tracking-wider uppercase text-sm">
-              Testimoni
+              {hero.subtitle}
             </p>
             <h1 className="heading-display text-foreground">
-              Kepuasan <span className="text-primary">Pelanggan</span> Kami
+              {hero.title} <span className="text-primary">{hero.titleHighlight}</span> Kami
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Baca pengalaman nyata dari ribuan pelanggan yang telah mempercayakan 
-              momen spesial mereka kepada BloomGift.
+              {hero.description}
             </p>
           </div>
         </div>
@@ -96,11 +112,10 @@ const Testimoni = () => {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h2 className="heading-section">
-              Ingin Menjadi Pelanggan <span className="text-primary">Berikutnya?</span>
+              {cta.title} <span className="text-primary">{cta.titleHighlight}</span>
             </h2>
             <p className="text-background/70 text-lg leading-relaxed">
-              Bergabunglah dengan ribuan pelanggan puas lainnya. Hubungi kami 
-              sekarang dan rasakan pelayanan terbaik dari BloomGift!
+              {cta.description}
             </p>
             <a
               href={getWhatsAppUrl(WHATSAPP_CONFIG.consultationMessage)}
@@ -111,7 +126,7 @@ const Testimoni = () => {
                 size="lg"
                 className="bg-whatsapp hover:bg-whatsapp/90 text-white rounded-full px-8 mt-4"
               >
-                Hubungi Kami via WhatsApp
+                {cta.buttonText}
               </Button>
             </a>
           </div>

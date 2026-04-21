@@ -247,6 +247,62 @@ export const productsApi = {
   },
 };
 
+/* ==================== TESTIMONIALS CONTENT ==================== */
+
+export interface TestimonialsContent {
+  hero: {
+    subtitle: string;
+    title: string;
+    titleHighlight: string;
+    description: string;
+  };
+  cta: {
+    title: string;
+    titleHighlight: string;
+    description: string;
+    buttonText: string;
+  };
+}
+
+export const testimonialsContentApi = {
+  get: async (): Promise<TestimonialsContent | null> => {
+    if (!isSupabaseConfigured) {
+      const local = localStorage.getItem("testimonials_content");
+      return local ? JSON.parse(local) : null;
+    }
+    try {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "testimonials_content")
+        .maybeSingle();
+
+      if (error) return null;
+      if (!data?.value) return null;
+
+      return JSON.parse(data.value as string) as TestimonialsContent;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  save: async (content: TestimonialsContent) => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem("testimonials_content", JSON.stringify(content));
+      return true;
+    }
+    const { error } = await supabase.from("site_settings").upsert({
+      key: "testimonials_content",
+      value: JSON.stringify(content),
+    }, {
+      onConflict: 'key'
+    });
+
+    if (error) throw error;
+    return true;
+  },
+};
+
 /* ==================== TESTIMONIALS ==================== */
 
 export type Testimonial =

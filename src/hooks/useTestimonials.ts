@@ -1,7 +1,28 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { testimonialsApi, Testimonial } from "@/lib/api";
+import { testimonialsApi, Testimonial, testimonialsContentApi, TestimonialsContent } from "@/lib/api";
 
 export const TESTIMONIALS_QUERY_KEY = ["testimonials"];
+export const TESTIMONIALS_CONTENT_QUERY_KEY = ["testimonials_content"];
+
+// Hook for fetching testimonials content
+export const useTestimonialsContent = () => {
+  return useQuery({
+    queryKey: TESTIMONIALS_CONTENT_QUERY_KEY,
+    queryFn: testimonialsContentApi.get,
+  });
+};
+
+// Hook for saving testimonials content
+export const useSaveTestimonialsContent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (content: TestimonialsContent) => testimonialsContentApi.save(content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TESTIMONIALS_CONTENT_QUERY_KEY });
+    },
+  });
+};
 
 // Hook for fetching all testimonials
 export const useTestimonials = () => {

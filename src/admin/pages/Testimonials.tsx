@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
-import { Plus, Pencil, Trash2, Star, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, Search, ChevronLeft, ChevronRight, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -21,24 +21,68 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { 
   useTestimonials, 
   useCreateTestimonial, 
   useUpdateTestimonial, 
   useDeleteTestimonial,
-  TESTIMONIALS_QUERY_KEY
+  TESTIMONIALS_QUERY_KEY,
+  useTestimonialsContent,
+  useSaveTestimonialsContent
 } from "@/hooks/useTestimonials";
-import { Testimonial, testimonialsApi } from "@/lib/api";
+import { Testimonial, testimonialsApi, TestimonialsContent } from "@/lib/api";
 import { testimonials as defaultTestimonials } from "@/data/testimonials";
 import { useQueryClient } from "@tanstack/react-query";
 
 const Testimonials = () => {
   const queryClient = useQueryClient();
   const { data: testimonials = [], isLoading } = useTestimonials();
+  const { data: serverContent, isLoading: isContentLoading } = useTestimonialsContent();
+  const { mutate: saveContent, isPending: isSavingContent } = useSaveTestimonialsContent();
   const createMutation = useCreateTestimonial();
   const updateMutation = useUpdateTestimonial();
   const deleteMutation = useDeleteTestimonial();
+
+  // Content state
+  const [heroContent, setHeroContent] = useState({
+    subtitle: "Testimoni",
+    title: "Kepuasan",
+    titleHighlight: "Pelanggan",
+    description: "Baca pengalaman nyata dari ribuan pelanggan yang telah mempercayakan momen spesial mereka kepada BloomGift.",
+  });
+
+  const [ctaContent, setCtaContent] = useState({
+    title: "Ingin Menjadi Pelanggan",
+    titleHighlight: "Berikutnya?",
+    description: "Bergabunglah dengan ribuan pelanggan puas lainnya. Hubungi kami sekarang dan rasakan pelayanan terbaik dari BloomGift!",
+    buttonText: "Hubungi Kami via WhatsApp",
+  });
+
+  useEffect(() => {
+    if (serverContent) {
+      if (serverContent.hero) setHeroContent(serverContent.hero);
+      if (serverContent.cta) setCtaContent(serverContent.cta);
+    }
+  }, [serverContent]);
+
+  const handleSaveContent = () => {
+    const payload: TestimonialsContent = {
+      hero: heroContent,
+      cta: ctaContent,
+    };
+    
+    saveContent(payload, {
+      onSuccess: () => {
+        toast.success("Konten halaman testimoni berhasil disimpan");
+      },
+      onError: (err) => {
+        console.error(err);
+        toast.error("Gagal menyimpan konten");
+      }
+    });
+  };
 
   // Auto-sync default testimonials if list is empty
   useEffect(() => {
@@ -169,7 +213,7 @@ const Testimonials = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isContentLoading) {
     return (
       <div className="flex items-center justify-center h-96">
         <p className="text-muted-foreground">Memuat data...</p>
@@ -186,139 +230,258 @@ const Testimonials = () => {
             Manajemen Testimoni
           </h1>
           <p className="text-muted-foreground mt-2">
-            Kelola testimoni pelanggan
+            Kelola testimoni pelanggan dan konten halaman
           </p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={() => handleOpenDialog()} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Tambah Testimoni
-          </Button>
         </div>
       </div>
 
-      {/* Search */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Cari testimoni berdasarkan nama, isi, atau produk..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="pl-10"
-            />
+      <Tabs defaultValue="list" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="list">Daftar Testimoni</TabsTrigger>
+          <TabsTrigger value="content">Konten Halaman</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="list" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Cari testimoni..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button onClick={() => handleOpenDialog()} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Tambah Testimoni
+            </Button>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Testimonials Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Daftar Testimoni ({filteredTestimonials.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nama</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Testimoni</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Produk</TableHead>
-                <TableHead className="text-right">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedTestimonials.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                    Tidak ada testimoni ditemukan
-                  </TableCell>
-                </TableRow>
-              ) : (
-                paginatedTestimonials.map((testimonial) => (
-                  <TableRow key={testimonial.id}>
-                    <TableCell className="font-medium">{testimonial.name}</TableCell>
-                    <TableCell>{testimonial.role}</TableCell>
-                    <TableCell>
-                      <p className="line-clamp-2 max-w-md">{testimonial.content}</p>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-4 h-4 fill-primary text-primary" />
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm text-muted-foreground">
-                        {testimonial.product || "-"}
-                      </p>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleOpenDialog(testimonial)}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setDeletingTestimonial(testimonial);
-                            setDeleteDialogOpen(true);
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Pelanggan</TableHead>
+                    <TableHead>Produk</TableHead>
+                    <TableHead>Rating</TableHead>
+                    <TableHead className="max-w-md">Testimoni</TableHead>
+                    <TableHead className="text-right">Aksi</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {paginatedTestimonials.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        Tidak ada testimoni ditemukan
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedTestimonials.map((testimonial) => (
+                      <TableRow key={testimonial.id}>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium text-foreground">{testimonial.name}</p>
+                            <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm">{testimonial.product || "-"}</span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-0.5">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-3 h-3 ${
+                                  i < testimonial.rating
+                                    ? "fill-primary text-primary"
+                                    : "fill-muted text-muted"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell className="max-w-md">
+                          <p className="text-sm line-clamp-2 italic">"{testimonial.content}"</p>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleOpenDialog(testimonial)}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:text-destructive"
+                              onClick={() => {
+                                setDeletingTestimonial(testimonial);
+                                setDeleteDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
 
-          {/* Pagination Controls */}
-          {filteredTestimonials.length > 0 && (
-            <div className="flex items-center justify-between mt-4 border-t pt-4">
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Menampilkan {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredTestimonials.length)} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredTestimonials.length)} dari {filteredTestimonials.length} testimoni
+                Menampilkan {paginatedTestimonials.length} dari {filteredTestimonials.length} testimoni
               </p>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                 >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  Sebelumnya
+                  <ChevronLeft className="w-4 h-4" />
                 </Button>
-                <div className="flex items-center px-2 text-sm font-medium">
-                  Halaman {currentPage} dari {totalPages}
+                <div className="flex items-center gap-1">
+                  {[...Array(totalPages)].map((_, i) => (
+                    <Button
+                      key={i}
+                      variant={currentPage === i + 1 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(i + 1)}
+                      className="w-8 h-8 p-0"
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages || totalPages === 0}
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
                 >
-                  Selanjutnya
-                  <ChevronRight className="w-4 h-4 ml-1" />
+                  <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        <TabsContent value="content" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Hero Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Hero Section</CardTitle>
+                <CardDescription>
+                  Edit judul dan deskripsi utama halaman testimoni
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="subtitle">Subtitle</Label>
+                  <Input
+                    id="subtitle"
+                    value={heroContent.subtitle}
+                    onChange={(e) => setHeroContent({ ...heroContent, subtitle: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Judul Utama</Label>
+                    <Input
+                      id="title"
+                      value={heroContent.title}
+                      onChange={(e) => setHeroContent({ ...heroContent, title: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="titleHighlight">Highlight</Label>
+                    <Input
+                      id="titleHighlight"
+                      value={heroContent.titleHighlight}
+                      onChange={(e) => setHeroContent({ ...heroContent, titleHighlight: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Deskripsi</Label>
+                  <Textarea
+                    id="description"
+                    rows={4}
+                    value={heroContent.description}
+                    onChange={(e) => setHeroContent({ ...heroContent, description: e.target.value })}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* CTA Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>CTA Section</CardTitle>
+                <CardDescription>
+                  Edit ajakan (Call to Action) di bagian bawah halaman
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="ctaTitle">Judul CTA</Label>
+                    <Input
+                      id="ctaTitle"
+                      value={ctaContent.title}
+                      onChange={(e) => setCtaContent({ ...ctaContent, title: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ctaHighlight">Highlight</Label>
+                    <Input
+                      id="ctaHighlight"
+                      value={ctaContent.titleHighlight}
+                      onChange={(e) => setCtaContent({ ...ctaContent, titleHighlight: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ctaDesc">Deskripsi CTA</Label>
+                  <Textarea
+                    id="ctaDesc"
+                    rows={4}
+                    value={ctaContent.description}
+                    onChange={(e) => setCtaContent({ ...ctaContent, description: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="btnText">Teks Tombol</Label>
+                  <Input
+                    id="btnText"
+                    value={ctaContent.buttonText}
+                    onChange={(e) => setCtaContent({ ...ctaContent, buttonText: e.target.value })}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-end">
+            <Button onClick={handleSaveContent} disabled={isSavingContent} className="gap-2">
+              <Save className="w-4 h-4" />
+              {isSavingContent ? "Menyimpan..." : "Simpan Konten Halaman"}
+            </Button>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
