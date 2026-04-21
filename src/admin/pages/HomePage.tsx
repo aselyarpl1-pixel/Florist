@@ -50,11 +50,18 @@ const HomePage = () => {
     buttonText: "Chat via WhatsApp",
   });
 
+  const [testimonialsContent, setTestimonialsContent] = useState({
+    sectionSubtitle: "Testimoni",
+    sectionTitle: "Apa Kata Pelanggan Kami",
+    sectionDescription: "Kepuasan pelanggan adalah prioritas utama kami. Lihat apa kata mereka tentang produk dan layanan BloomGift.",
+  });
+
   useEffect(() => {
     if (serverContent) {
       if (serverContent.hero) setHeroContent(serverContent.hero);
       if (serverContent.features) setFeaturesContent(serverContent.features);
       if (serverContent.cta) setCtaContent(serverContent.cta);
+      if (serverContent.testimonials) setTestimonialsContent(serverContent.testimonials);
     }
   }, [serverContent]);
 
@@ -63,6 +70,7 @@ const HomePage = () => {
       hero: heroContent,
       features: featuresContent,
       cta: ctaContent,
+      testimonials: testimonialsContent,
     };
     
     saveContent(payload, {
@@ -100,6 +108,7 @@ const HomePage = () => {
         <TabsList>
           <TabsTrigger value="hero">Hero Section</TabsTrigger>
           <TabsTrigger value="features">Keunggulan</TabsTrigger>
+          <TabsTrigger value="testimonials">Testimoni</TabsTrigger>
           <TabsTrigger value="cta">CTA Section</TabsTrigger>
         </TabsList>
 
@@ -328,6 +337,69 @@ const HomePage = () => {
 
               <div className="flex justify-end pt-4">
                 <Button onClick={handleSaveFeatures} className="gap-2">
+                  <Save className="w-4 h-4" />
+                  Simpan Perubahan
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Testimonials Section */}
+        <TabsContent value="testimonials" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Section Testimoni</CardTitle>
+              <CardDescription>
+                Edit teks pembuka untuk bagian testimoni di beranda
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="testiSubtitle">Subtitle Section</Label>
+                <Input
+                  id="testiSubtitle"
+                  value={testimonialsContent.sectionSubtitle}
+                  onChange={(e) =>
+                    setTestimonialsContent({
+                      ...testimonialsContent,
+                      sectionSubtitle: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="testiTitle">Judul Section</Label>
+                <Input
+                  id="testiTitle"
+                  value={testimonialsContent.sectionTitle}
+                  onChange={(e) =>
+                    setTestimonialsContent({
+                      ...testimonialsContent,
+                      sectionTitle: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="testiDesc">Deskripsi Section</Label>
+                <Textarea
+                  id="testiDesc"
+                  value={testimonialsContent.sectionDescription}
+                  onChange={(e) =>
+                    setTestimonialsContent({
+                      ...testimonialsContent,
+                      sectionDescription: e.target.value,
+                    })
+                  }
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Button onClick={handleSave} className="gap-2">
                   <Save className="w-4 h-4" />
                   Simpan Perubahan
                 </Button>

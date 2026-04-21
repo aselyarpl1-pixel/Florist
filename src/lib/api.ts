@@ -486,6 +486,11 @@ export interface HomeContent {
     description: string;
     buttonText: string;
   };
+  testimonials: {
+    sectionSubtitle: string;
+    sectionTitle: string;
+    sectionDescription: string;
+  };
 }
 
 export const homeContentApi = {

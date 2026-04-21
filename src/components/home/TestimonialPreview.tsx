@@ -2,10 +2,20 @@ import { Star, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTestimonials } from "@/hooks/useTestimonials";
+import { useHomeContent } from "@/hooks/useHomeContent";
 
 const TestimonialPreview = () => {
-  const { data: testimonials = [], isLoading } = useTestimonials();
+  const { data: testimonials = [], isLoading: isTestimonialsLoading } = useTestimonials();
+  const { data: homeContent, isLoading: isHomeLoading } = useHomeContent();
   const previewTestimonials = testimonials.slice(0, 3);
+
+  const content = homeContent?.testimonials || {
+    sectionSubtitle: "Testimoni",
+    sectionTitle: "Apa Kata Pelanggan Kami",
+    sectionDescription: "Kepuasan pelanggan adalah prioritas utama kami. Lihat apa kata mereka tentang produk dan layanan BloomGift.",
+  };
+
+  const isLoading = isTestimonialsLoading || isHomeLoading;
 
   return (
     <section className="section-padding bg-background">
@@ -13,14 +23,13 @@ const TestimonialPreview = () => {
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
           <p className="text-primary font-medium tracking-wider uppercase text-sm">
-            Testimoni
+            {content.sectionSubtitle}
           </p>
           <h2 className="heading-section text-foreground">
-            Apa Kata Pelanggan Kami
+            {content.sectionTitle}
           </h2>
           <p className="text-muted-foreground">
-            Kepuasan pelanggan adalah prioritas utama kami. Lihat apa kata mereka 
-            tentang produk dan layanan BloomGift.
+            {content.sectionDescription}
           </p>
         </div>
 
