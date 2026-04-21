@@ -15,7 +15,11 @@ const FloatingMenu = () => {
     { id: "2", label: "Katalog Parsel Natal", href: "/katalog?kategori=parsel-natal", color: "red", icon: "Gift", visible: true },
   ];
 
-  const buttons = config?.buttons || defaultButtons;
+  // Use saved buttons if they exist and are not empty, otherwise use defaults
+  const buttons = (config?.buttons && config.buttons.length > 0) 
+    ? config.buttons 
+    : defaultButtons;
+    
   const visibleButtons = buttons.filter(b => b.visible);
 
   if (visibleButtons.length === 0) return null;
