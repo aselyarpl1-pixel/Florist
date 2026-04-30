@@ -1,8 +1,21 @@
 import { Link } from "react-router-dom";
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook } from "lucide-react";
 import { getWhatsAppUrl } from "@/config/whatsapp";
+import { useFooterSettings } from "@/hooks/useFooterSettings";
 
 const Footer = () => {
+  const { data: footerData } = useFooterSettings();
+  
+  const footer = footerData || {
+    brandDescription: "Hadirkan kebahagiaan melalui bunga segar, hampers eksklusif, dan dekorasi premium untuk setiap momen spesial Anda.",
+    address: "Jl. Raya Janti Gg. Harjuna No.59, Jaranan, Karangjambe, Kec. Banguntapan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55198",
+    phone: "+62 856 4642 0488",
+    email: "hello@florist.id",
+    hours: "Senin - Sabtu: 08.00 - 20.00\nMinggu: 09.00 - 17.00",
+    instagram: "https://instagram.com",
+    facebook: "https://facebook.com",
+  };
+
   return (
     <footer className="bg-foreground text-background">
       <div className="container-custom py-16">
@@ -15,12 +28,11 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-background/70 text-sm leading-relaxed">
-              Hadirkan kebahagiaan melalui bunga segar, hampers eksklusif, dan 
-              dekorasi premium untuk setiap momen spesial Anda.
+              {footer.brandDescription}
             </p>
             <div className="flex gap-4 pt-2">
               <a
-                href="https://instagram.com"
+                href={footer.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
@@ -28,7 +40,7 @@ const Footer = () => {
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href="https://facebook.com"
+                href={footer.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
@@ -122,26 +134,25 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <span className="text-background/70 text-sm">
-                Jl. Raya Janti Gg. Harjuna No.59, Jaranan, Karangjambe, Kec. Banguntapan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55198
+                  {footer.address}
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary shrink-0" />
                 <a href={getWhatsAppUrl()} className="text-background/70 hover:text-primary transition-colors text-sm">
-                  +62 856 4642 0488
+                  {footer.phone}
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary shrink-0" />
                 <span className="text-background/70 text-sm">
-                  hello@florist.id
+                  {footer.email}
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-background/70 text-sm">
-                  Senin - Sabtu: 08.00 - 20.00<br />
-                  Minggu: 09.00 - 17.00
+                <span className="text-background/70 text-sm whitespace-pre-line">
+                  {footer.hours}
                 </span>
               </li>
             </ul>

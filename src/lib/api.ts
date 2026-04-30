@@ -670,6 +670,55 @@ export const whatsappConfigApi = {
   },
 };
 
+/* ==================== FOOTER SETTINGS ==================== */
+
+export interface FooterSettings {
+  brandDescription: string;
+  address: string;
+  phone: string;
+  email: string;
+  hours: string;
+  instagram: string;
+  facebook: string;
+}
+
+export const footerSettingsApi = {
+  get: async (): Promise<FooterSettings | null> => {
+    if (!isSupabaseConfigured) {
+      const local = localStorage.getItem("footer_settings");
+      return local ? JSON.parse(local) : null;
+    }
+    try {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "footer_settings")
+        .maybeSingle();
+
+      if (error) return null;
+      return parseSettingsValue<FooterSettings>(data?.value);
+    } catch (e) {
+      return null;
+    }
+  },
+
+  save: async (settings: FooterSettings) => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem("footer_settings", JSON.stringify(settings));
+      return true;
+    }
+    const { error } = await supabase.from("site_settings").upsert({
+      key: "footer_settings",
+      value: settings,
+    }, {
+      onConflict: 'key'
+    });
+
+    if (error) throw error;
+    return true;
+  },
+};
+
 /* ==================== NAVIGATION ==================== */
 
 export interface MenuItem {

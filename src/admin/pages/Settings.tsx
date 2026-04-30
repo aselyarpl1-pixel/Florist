@@ -17,7 +17,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useNavigation, useSaveNavigation } from "@/hooks/useNavigation";
-import { MenuItem } from "@/lib/api";
+import { useFooterSettings, useSaveFooterSettings } from "@/hooks/useFooterSettings";
+import { MenuItem, FooterSettings as IFooterSettings } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -31,12 +32,14 @@ const Settings = () => {
   // Navigation settings component
   const { data: serverNavigation } = useNavigation();
   const { mutate: saveNavigation, isPending: isSaving } = useSaveNavigation();
+  const { data: serverFooter, isLoading: isFooterLoading } = useFooterSettings();
+  const { mutate: saveFooter, isPending: isSavingFooter } = useSaveFooterSettings();
 
   const [navigation, setNavigation] = useState<MenuItem[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentMenuItem, setCurrentMenuItem] = useState<MenuItem | null>(null);
 
-  const [footer, setFooter] = useState({
+  const [footer, setFooter] = useState<IFooterSettings>({
     brandDescription:
       "Hadirkan kebahagiaan melalui bunga segar, hampers eksklusif, dan dekorasi premium untuk setiap momen spesial Anda.",
     address: "Jl. Raya Janti Gg. Harjuna No.59, Jaranan, Karangjambe, Kec. Banguntapan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55198",
@@ -51,7 +54,10 @@ const Settings = () => {
     if (serverNavigation) {
       setNavigation(serverNavigation);
     }
-  }, [serverNavigation]);
+    if (serverFooter) {
+      setFooter(serverFooter);
+    }
+  }, [serverNavigation, serverFooter]);
 
   const handleSaveNavigation = () => {
     saveNavigation(navigation, {
@@ -61,7 +67,10 @@ const Settings = () => {
   };
 
   const handleSaveFooter = () => {
-    toast.success("Footer berhasil disimpan");
+    saveFooter(footer, {
+      onSuccess: () => toast.success("Footer berhasil disimpan"),
+      onError: () => toast.error("Gagal menyimpan footer"),
+    });
   };
 
   const toggleMenuVisibility = (id: string) => {
