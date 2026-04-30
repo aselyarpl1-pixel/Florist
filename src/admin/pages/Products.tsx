@@ -432,9 +432,14 @@ const Products = () => {
                           Rp {product.price.toLocaleString("id-ID")}
                         </span>
                         {(product.original_price || 0) > 0 && (
-                          <span className="text-xs text-red-500 line-through">
-                            Rp {(product.original_price || 0).toLocaleString("id-ID")}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-muted-foreground line-through decoration-red-500/50">
+                              Rp {(product.original_price || 0).toLocaleString("id-ID")}
+                            </span>
+                            <span className="text-[10px] font-bold text-red-600 bg-red-50 px-1 rounded">
+                              -{Math.round(((product.original_price! - product.price) / product.original_price!) * 100)}%
+                            </span>
+                          </div>
                         )}
                       </div>
                     </TableCell>
@@ -588,7 +593,7 @@ const Products = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="original_price">Harga Coret (Opsional)</Label>
+                <Label htmlFor="original_price">Harga Sebelum Diskon (Coret)</Label>
                 <Input
                   id="original_price"
                   type="number"
@@ -596,8 +601,11 @@ const Products = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, original_price: Number(e.target.value) })
                   }
-                  placeholder="Isi jika ada diskon"
+                  placeholder="Contoh: 450000"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Kosongkan jika tidak ada diskon
+                </p>
               </div>
             </div>
 

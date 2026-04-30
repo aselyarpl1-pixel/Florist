@@ -60,6 +60,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const cleanSlug = getCleanSlug(product.slug);
 
+  const discountPercentage = (originalPrice || 0) > 0 
+    ? Math.round(((originalPrice! - product.price) / originalPrice!) * 100) 
+    : 0;
+
   return (
     <div className="group card-premium">
       {/* Image Container */}
@@ -74,22 +78,22 @@ const ProductCard = ({ product }: ProductCardProps) => {
         {/* Badges */}
         <div className="absolute top-3 left-3 z-30 flex flex-col gap-2 items-start">
           {isBestSeller && (
-            <span className="bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
+            <span className="bg-blue-600 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded shadow-sm">
               Best Seller
             </span>
           )}
-          {(originalPrice || 0) > 0 && (
-            <span className="bg-red-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
-              Sale
+          {discountPercentage > 0 && (
+            <span className="bg-red-600 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded shadow-sm">
+              Hemat {discountPercentage}%
             </span>
           )}
           {isExclusive && (
-            <span className="bg-purple-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
+            <span className="bg-purple-600 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded shadow-sm">
               Exclusive
             </span>
           )}
           {isPremium && (
-            <span className="bg-amber-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
+            <span className="bg-amber-600 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded shadow-sm">
               Premium
             </span>
           )}
@@ -113,21 +117,26 @@ const ProductCard = ({ product }: ProductCardProps) => {
         )}
         
         {/* Price */}
-        <div className="flex flex-col gap-0.5">
-          <div className="flex items-center gap-2">
-            <span className="font-heading text-xl font-semibold text-primary">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-heading text-xl font-bold text-primary">
               {formatPrice(product.price)}
             </span>
             {(originalPrice || 0) > 0 && (
-              <span className="text-sm text-muted-foreground line-through">
+              <span className="text-sm text-muted-foreground line-through decoration-red-500/50">
                 {formatPrice(originalPrice)}
               </span>
             )}
           </div>
           {(originalPrice || 0) > 0 && (
-            <span className="text-xs font-medium text-red-600">
-              Hemat {formatPrice(originalPrice - product.price)}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded">
+                -{discountPercentage}%
+              </span>
+              <span className="text-xs font-medium text-red-600">
+                Hemat {formatPrice(originalPrice - product.price)}
+              </span>
+            </div>
           )}
         </div>
 

@@ -168,36 +168,48 @@ const ProductDetail = () => {
               {/* Badges */}
               <div className="flex flex-wrap gap-2">
                 {isBestSeller && (
-                  <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
+                  <span className="bg-blue-600 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded shadow-sm">
                     Best Seller
                   </span>
                 )}
                 {discount > 0 && (
-                  <span className="bg-rose text-white text-xs font-medium px-3 py-1 rounded-full">
+                  <span className="bg-red-600 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded shadow-sm">
                     Hemat {discount}%
                   </span>
                 )}
                 {isExclusive && (
-                  <span className="bg-black text-white text-xs font-medium px-3 py-1 rounded-full">
+                  <span className="bg-purple-600 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded shadow-sm">
                     Exclusive
                   </span>
                 )}
                 {isPremium && (
-                  <span className="bg-yellow-900 text-white text-xs font-medium px-3 py-1 rounded-full">
+                  <span className="bg-amber-600 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded shadow-sm">
                     Premium
                   </span>
                 )}
               </div>
 
               {/* Price */}
-              <div className="flex items-baseline gap-3">
-                <span className="font-heading text-3xl md:text-4xl font-semibold text-primary">
-                  {formatPrice(product.price)}
-                </span>
-                {(product.original_price || 0) > 0 && (
-                  <span className="text-xl text-muted-foreground line-through">
-                    {formatPrice(product.original_price || 0)}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="font-heading text-3xl md:text-4xl font-bold text-primary">
+                    {formatPrice(product.price)}
                   </span>
+                  {(product.original_price || 0) > 0 && (
+                    <span className="text-xl text-muted-foreground line-through decoration-red-500/50">
+                      {formatPrice(product.original_price || 0)}
+                    </span>
+                  )}
+                </div>
+                {(product.original_price || 0) > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="bg-red-100 text-red-600 text-sm font-bold px-2 py-0.5 rounded">
+                      -{discount}%
+                    </span>
+                    <span className="text-red-600 font-medium">
+                      Hemat {formatPrice((product.original_price || 0) - product.price)}
+                    </span>
+                  </div>
                 )}
               </div>
 
