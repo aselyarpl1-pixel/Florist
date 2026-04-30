@@ -2,6 +2,7 @@
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { products as localProducts, Product as LocalProduct } from "@/data/products";
+import { testimonials as localTestimonials, Testimonial as LocalTestimonial } from "@/data/testimonials";
 
 /* ==================== PRODUCTS ==================== */
 
@@ -40,6 +41,15 @@ const mapToApiProduct = (p: LocalProduct): Product => ({
   slug: p.slug
 } as unknown as Product);
 
+// Helper to map local testimonial to API structure
+const mapToApiTestimonial = (t: LocalTestimonial): Testimonial => ({
+  ...t,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  avatar_url: t.avatar || "",
+  is_approved: true,
+} as unknown as Testimonial);
+
 export const productsApi = {
   getAll: async () => {
     // Skip Supabase if not configured to avoid 406 errors
@@ -54,6 +64,12 @@ export const productsApi = {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
+      
+      // If data is empty from Supabase, return local data as fallback
+      if (!data || data.length === 0) {
+        return localProducts.map(mapToApiProduct);
+      }
+      
       return data as Product[];
     } catch (error) {
       console.warn("Supabase fetch failed, falling back to local data:", error);
@@ -312,17 +328,28 @@ export const testimonialsApi = {
   getAll: async () => {
     // Skip Supabase if not configured
     if (!isSupabaseConfigured) {
-      return [];
+      return localTestimonials.map(mapToApiTestimonial);
     }
 
-    const { data, error } = await supabase
-      .from("testimonials")
-      .select("*")
-      .eq("is_approved", true)
-      .order("created_at", { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from("testimonials")
+        .select("*")
+        .eq("is_approved", true)
+        .order("created_at", { ascending: true });
 
-    if (error) throw error;
-    return data as Testimonial[];
+      if (error) throw error;
+      
+      // If data is empty from Supabase, return local data as fallback
+      if (!data || data.length === 0) {
+        return localTestimonials.map(mapToApiTestimonial);
+      }
+      
+      return data as Testimonial[];
+    } catch (error) {
+      console.warn("Supabase fetch failed, falling back to local data:", error);
+      return localTestimonials.map(mapToApiTestimonial);
+    }
   },
 
   getById: async (id: string) => {
