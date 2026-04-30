@@ -1,0 +1,25 @@
+import { ReactNode } from "react";
+import Header from "./Header";
+import Footer from "./Footer";
+import WhatsAppFloat from "./WhatsAppFloat";
+import FloatingMenu from "./FloatingMenu";
+
+interface LayoutProps {
+  children: ReactNode;
+}
+
+const Layout = ({ children }: LayoutProps) => {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1 pt-20">
+        {children}
+      </main>
+      <Footer />
+      <FloatingMenu />
+      <WhatsAppFloat />
+    </div>
+  );
+};
+
+export default Layout;

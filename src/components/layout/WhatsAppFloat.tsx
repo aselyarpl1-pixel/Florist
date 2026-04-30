@@ -1,0 +1,69 @@
+import { FaWhatsapp } from "react-icons/fa";
+import { getWhatsAppUrl, getProductWhatsAppUrl } from "@/config/whatsapp";
+import { useLocation, useParams } from "react-router-dom";
+import { useProductBySlug } from "@/hooks/useProducts";
+import { useFloatingMenu } from "@/hooks/useFloatingMenu";
+
+const WhatsAppFloat = () => {
+  const location = useLocation();
+  const params = useParams<{ slug: string }>();
+  const { data: floatingConfig } = useFloatingMenu();
+  
+  // Extract slug from URL path if useParams is empty (which happens if component is outside Route)
+  const pathSlug = location.pathname.startsWith('/produk/') 
+    ? location.pathname.split('/produk/')[1] 
+    : undefined;
+    
+  const slug = params.slug || pathSlug;
+  
+  // Check if we are on a product page
+  const isProductPage = !!slug;
+  
+  // Fetch product data if on product page (uses cache from ProductDetail)
+  const { data: product } = useProductBySlug(isProductPage ? slug || "" : "");
+  
+  const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+
+  // Determine the correct WhatsApp URL
+  let href = getWhatsAppUrl(); // Default message
+  
+  if (isProductPage && product) {
+     const productUrl = `${siteUrl}/produk/${product.slug}`;
+     href = getProductWhatsAppUrl(product.name, productUrl);
+  }
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="
+        fixed bottom-10 right-4 z-50
+        flex items-center gap-2
+        bg-green-500 hover:bg-green-600
+        text-white text-xs font-semibold
+        px-3 py-1.5
+        rounded-full
+        shadow-md
+        transition-all duration-300
+      "
+    >
+
+      {/* Text */}
+      <span>{floatingConfig?.whatsappText || "Kami Hadir 24 Jam"}</span>
+
+
+      {/* WhatsApp Icon */}
+      <span className="
+        flex items-center justify-center
+        w-8 h-8
+        bg-white text-green-500
+        rounded-full
+      ">
+        <FaWhatsapp size={18} />
+      </span>
+    </a>
+  );
+};
+
+export default WhatsAppFloat;
