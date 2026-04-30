@@ -682,9 +682,17 @@ export interface MenuItem {
 
 export const navigationApi = {
   get: async (): Promise<MenuItem[]> => {
+    const defaultNav: MenuItem[] = [
+      { id: "1", name: "Beranda", href: "/", order: 1, visible: true },
+      { id: "2", name: "Katalog", href: "/katalog", order: 2, visible: true },
+      { id: "3", name: "Tentang Kami", href: "/tentang-kami", order: 3, visible: true },
+      { id: "4", name: "Testimoni", href: "/testimoni", order: 4, visible: true },
+      { id: "5", name: "Kontak", href: "/kontak", order: 5, visible: true },
+    ];
+
     if (!isSupabaseConfigured) {
       const local = localStorage.getItem("navigation");
-      return local ? JSON.parse(local) : [];
+      return local ? JSON.parse(local) : defaultNav;
     }
     try {
       const { data, error } = await supabase
@@ -693,10 +701,12 @@ export const navigationApi = {
         .eq("key", "navigation")
         .maybeSingle();
 
-      if (error) return [];
-      return parseSettingsValue<MenuItem[]>(data?.value) || [];
+      if (error) return defaultNav;
+      
+      const val = parseSettingsValue<MenuItem[]>(data?.value);
+      return val && val.length > 0 ? val : defaultNav;
     } catch (e) {
-      return [];
+      return defaultNav;
     }
   },
 
