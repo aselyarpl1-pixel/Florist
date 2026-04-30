@@ -65,7 +65,8 @@ export const productsApi = {
 
       if (error) throw error;
       
-      // If data is empty from Supabase, return local data as fallback
+      // If data is empty from Supabase AND we have local data, 
+      // return local data but DON'T make it look like Supabase is empty
       if (!data || data.length === 0) {
         return localProducts.map(mapToApiProduct);
       }
@@ -280,6 +281,20 @@ export interface TestimonialsContent {
   };
 }
 
+// Helper to handle JSON value from site_settings
+const parseSettingsValue = <T>(value: any): T | null => {
+  if (!value) return null;
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as T;
+    } catch (e) {
+      console.error("Error parsing settings value:", e);
+      return null;
+    }
+  }
+  return value as T;
+};
+
 export const testimonialsContentApi = {
   get: async (): Promise<TestimonialsContent | null> => {
     if (!isSupabaseConfigured) {
@@ -294,9 +309,7 @@ export const testimonialsContentApi = {
         .maybeSingle();
 
       if (error) return null;
-      if (!data?.value) return null;
-
-      return JSON.parse(data.value as string) as TestimonialsContent;
+      return parseSettingsValue<TestimonialsContent>(data?.value);
     } catch (e) {
       return null;
     }
@@ -309,7 +322,7 @@ export const testimonialsContentApi = {
     }
     const { error } = await supabase.from("site_settings").upsert({
       key: "testimonials_content",
-      value: JSON.stringify(content),
+      value: content, // Send object directly for JSONB
     }, {
       onConflict: 'key'
     });
@@ -454,9 +467,7 @@ export const citiesApi = {
         return [];
       }
       
-      if (!data?.value) return [];
-
-      return JSON.parse(data.value as string) as City[];
+      return parseSettingsValue<City[]>(data?.value) || [];
     } catch (e) {
       return [];
     }
@@ -470,7 +481,7 @@ export const citiesApi = {
     // Ensure we are using upsert with the correct conflict resolution
     const { error } = await supabase.from("site_settings").upsert({
       key: "cities",
-      value: JSON.stringify(cities),
+      value: cities,
     }, {
       onConflict: 'key' // Explicitly state we want to update based on 'key'
     });
@@ -548,9 +559,7 @@ export const floatingMenuApi = {
         .maybeSingle();
 
       if (error) return null;
-      if (!data?.value) return null;
-
-      return JSON.parse(data.value as string) as FloatingMenuConfig;
+      return parseSettingsValue<FloatingMenuConfig>(data?.value);
     } catch (e) {
       return null;
     }
@@ -563,7 +572,7 @@ export const floatingMenuApi = {
     }
     const { error } = await supabase.from("site_settings").upsert({
       key: "floating_menu",
-      value: JSON.stringify(config),
+      value: config,
     }, {
       onConflict: 'key'
     });
@@ -590,9 +599,7 @@ export const homeContentApi = {
         return null;
       }
       
-      if (!data?.value) return null;
-
-      return JSON.parse(data.value as string) as HomeContent;
+      return parseSettingsValue<HomeContent>(data?.value);
     } catch (e) {
       return null;
     }
@@ -605,7 +612,7 @@ export const homeContentApi = {
     }
     const { error } = await supabase.from("site_settings").upsert({
       key: "home_content",
-      value: JSON.stringify(content),
+      value: content,
     }, {
       onConflict: 'key'
     });
@@ -640,9 +647,7 @@ export const whatsappConfigApi = {
         return null;
       }
       
-      if (!data?.value) return null;
-
-      return JSON.parse(data.value as string) as WhatsAppConfig;
+      return parseSettingsValue<WhatsAppConfig>(data?.value);
     } catch (e) {
       return null;
     }
@@ -655,7 +660,7 @@ export const whatsappConfigApi = {
     }
     const { error } = await supabase.from("site_settings").upsert({
       key: "whatsapp_config",
-      value: JSON.stringify(config),
+      value: config,
     }, {
       onConflict: 'key'
     });
@@ -676,10 +681,10 @@ export interface MenuItem {
 }
 
 export const navigationApi = {
-  get: async (): Promise<MenuItem[] | null> => {
+  get: async (): Promise<MenuItem[]> => {
     if (!isSupabaseConfigured) {
       const local = localStorage.getItem("navigation");
-      return local ? JSON.parse(local) : null;
+      return local ? JSON.parse(local) : [];
     }
     try {
       const { data, error } = await supabase
@@ -688,12 +693,10 @@ export const navigationApi = {
         .eq("key", "navigation")
         .maybeSingle();
 
-      if (error) return null;
-      if (!data?.value) return null;
-
-      return JSON.parse(data.value as string) as MenuItem[];
+      if (error) return [];
+      return parseSettingsValue<MenuItem[]>(data?.value) || [];
     } catch (e) {
-      return null;
+      return [];
     }
   },
 
@@ -704,7 +707,7 @@ export const navigationApi = {
     }
     const { error } = await supabase.from("site_settings").upsert({
       key: "navigation",
-      value: JSON.stringify(items),
+      value: items,
     }, {
       onConflict: 'key'
     });
@@ -753,9 +756,7 @@ export const aboutContentApi = {
         .maybeSingle();
 
       if (error) return null;
-      if (!data?.value) return null;
-
-      return JSON.parse(data.value as string) as AboutContent;
+      return parseSettingsValue<AboutContent>(data?.value);
     } catch (e) {
       return null;
     }
@@ -768,7 +769,7 @@ export const aboutContentApi = {
     }
     const { error } = await supabase.from("site_settings").upsert({
       key: "about_content",
-      value: JSON.stringify(content),
+      value: content,
     }, {
       onConflict: 'key'
     });

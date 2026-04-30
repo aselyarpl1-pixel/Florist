@@ -248,14 +248,10 @@ const Products = () => {
       const { isSupabaseConfigured } = await import("@/integrations/supabase/client");
       
       if (!isSupabaseConfigured) {
-        // Mock save for UI demonstration if Supabase is not configured
-        toast.success("Mode Demo: Produk disimpan (lokal saja)", {
-          description: "Data tidak akan tersimpan permanen karena Supabase belum dikonfigurasi.",
-          duration: 4000
+        toast.error("Supabase belum dikonfigurasi!", {
+          description: "Silakan isi VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di file .env terlebih dahulu.",
+          duration: 6000
         });
-        setDialogOpen(false);
-        // Invalidate queries to refresh UI (it will reload local data)
-        queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
         return;
       }
 
@@ -264,7 +260,7 @@ const Products = () => {
           id: editingProduct.id,
           updates: { ...formData, image_url: imageUrl },
         });
-        toast.success("Produk berhasil diupdate");
+        toast.success("Produk berhasil diperbarui di Supabase");
       } else {
         const slug = formData.slug || formData.name
           .toLowerCase()
@@ -276,9 +272,11 @@ const Products = () => {
           image_url: imageUrl,
           slug,
         });
-        toast.success("Produk berhasil ditambahkan");
+        toast.success("Produk berhasil ditambahkan ke Supabase");
       }
       setDialogOpen(false);
+      // Force refresh data
+      queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
     } catch (error) {
       setIsUploading(false);
       toast.error("Terjadi kesalahan. Silakan coba lagi.");
