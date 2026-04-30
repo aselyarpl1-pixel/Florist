@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,25 @@ import { useNavigation } from "@/hooks/useNavigation";
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { data: navigation = [] } = useNavigation();
+  const { data: navigation = [], isLoading } = useNavigation();
   
   // Filter visible items and sort by order
-  const displayNavigation = navigation
-    .filter(item => item.visible)
-    .sort((a, b) => a.order - b.order);
+  const displayNavigation = useMemo(() => {
+    if (navigation.length > 0) {
+      return navigation
+        .filter(item => item.visible)
+        .sort((a, b) => a.order - b.order);
+    }
+    
+    // Default fallback if navigation is empty
+    return [
+      { id: "1", name: "Beranda", href: "/", order: 1, visible: true },
+      { id: "2", name: "Katalog", href: "/katalog", order: 2, visible: true },
+      { id: "3", name: "Tentang Kami", href: "/tentang-kami", order: 3, visible: true },
+      { id: "4", name: "Testimoni", href: "/testimoni", order: 4, visible: true },
+      { id: "5", name: "Kontak", href: "/kontak", order: 5, visible: true },
+    ];
+  }, [navigation]);
 
   const isActive = (href: string) => {
     if (href === "/") return location.pathname === "/";
