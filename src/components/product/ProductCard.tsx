@@ -113,13 +113,20 @@ const ProductCard = ({ product }: ProductCardProps) => {
         )}
         
         {/* Price */}
-        <div className="flex items-center gap-2">
-          <span className="font-heading text-xl font-semibold text-primary">
-            {formatPrice(product.price)}
-          </span>
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-2">
+            <span className="font-heading text-xl font-semibold text-primary">
+              {formatPrice(product.price)}
+            </span>
+            {(originalPrice || 0) > 0 && (
+              <span className="text-sm text-muted-foreground line-through">
+                {formatPrice(originalPrice)}
+              </span>
+            )}
+          </div>
           {(originalPrice || 0) > 0 && (
-            <span className="text-sm text-muted-foreground line-through">
-              {formatPrice(originalPrice)}
+            <span className="text-xs font-medium text-red-600">
+              Hemat {formatPrice(originalPrice - product.price)}
             </span>
           )}
         </div>
