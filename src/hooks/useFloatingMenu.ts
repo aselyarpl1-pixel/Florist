@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { floatingMenuApi, FloatingMenuConfig } from "@/lib/api";
+import { floatingMenuApi } from "@/lib/api";
+import type { FloatingMenuConfig } from "@/lib/api";
 
 export const FLOATING_MENU_QUERY_KEY = ["floating_menu"];
 

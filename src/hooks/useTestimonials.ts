@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { testimonialsApi, Testimonial, testimonialsContentApi, TestimonialsContent } from "@/lib/api";
+import { testimonialsApi, testimonialsContentApi } from "@/lib/api";
+import type { Testimonial, TestimonialsContent } from "@/lib/api";
 
 export const TESTIMONIALS_QUERY_KEY = ["testimonials"];
 export const TESTIMONIALS_CONTENT_QUERY_KEY = ["testimonials_content"];

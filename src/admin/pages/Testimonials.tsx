@@ -32,9 +32,10 @@ import {
   useTestimonialsContent,
   useSaveTestimonialsContent
 } from "@/hooks/useTestimonials";
-import { Testimonial, testimonialsApi, TestimonialsContent } from "@/lib/api";
 import { testimonials as defaultTestimonials } from "@/data/testimonials";
 import { useQueryClient } from "@tanstack/react-query";
+import type { Testimonial, TestimonialsContent } from "@/lib/api";
+import { testimonialsApi } from "@/lib/api";
 
 const Testimonials = () => {
   const queryClient = useQueryClient();

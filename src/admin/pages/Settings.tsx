@@ -18,7 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useNavigation, useSaveNavigation } from "@/hooks/useNavigation";
 import { useFooterSettings, useSaveFooterSettings } from "@/hooks/useFooterSettings";
-import { MenuItem, FooterSettings as IFooterSettings } from "@/lib/api";
+import type { MenuItem, FooterSettings as IFooterSettings } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -296,9 +296,13 @@ const Settings = () => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button onClick={handleSaveFooter} className="gap-2">
+                <Button 
+                  onClick={handleSaveFooter} 
+                  className="gap-2"
+                  disabled={isSavingFooter}
+                >
                   <Save className="w-4 h-4" />
-                  Simpan Perubahan
+                  {isSavingFooter ? "Menyimpan..." : "Simpan Perubahan"}
                 </Button>
               </div>
             </CardContent>

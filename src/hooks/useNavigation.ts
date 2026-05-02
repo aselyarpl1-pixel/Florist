@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { navigationApi, MenuItem } from "@/lib/api";
+import { navigationApi } from "@/lib/api";
+import type { MenuItem } from "@/lib/api";
 
 export const NAVIGATION_QUERY_KEY = ["navigation"];
 

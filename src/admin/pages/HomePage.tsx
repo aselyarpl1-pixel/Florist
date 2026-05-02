@@ -10,11 +10,11 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useHomeContent, useSaveHomeContent } from "@/hooks/useHomeContent";
 import { useFloatingMenu, useSaveFloatingMenu } from "@/hooks/useFloatingMenu";
-import { HomeContent, FloatingButton } from "@/lib/api";
+import type { HomeContent, FloatingButton } from "@/lib/api";
 
 const HomePage = () => {
   const { data: serverContent, isLoading } = useHomeContent();
-  const { mutate: saveContent, isPending } = useSaveHomeContent();
+  const { mutate: saveContent, isPending: isSavingContent } = useSaveHomeContent();
   const { data: floatingMenu, isLoading: isFloatingLoading } = useFloatingMenu();
   const { mutate: saveFloatingMenu, isPending: isSavingFloating } = useSaveFloatingMenu();
 
@@ -89,13 +89,8 @@ const HomePage = () => {
     };
     
     saveContent(payload, {
-      onSuccess: () => {
-        toast.success("Konten berhasil disimpan");
-      },
-      onError: (err) => {
-        console.error(err);
-        toast.error("Gagal menyimpan konten");
-      }
+      onSuccess: () => toast.success("Konten berhasil disimpan"),
+      onError: (err: any) => toast.error("Gagal menyimpan konten: " + err.message),
     });
   };
 
@@ -105,8 +100,8 @@ const HomePage = () => {
 
   const handleSaveFloatingMenu = () => {
     saveFloatingMenu(floatingMenuConfig, {
-      onSuccess: () => toast.success("Menu melayang berhasil disimpan"),
-      onError: () => toast.error("Gagal menyimpan menu melayang")
+      onSuccess: () => toast.success("Menu WhatsApp berhasil disimpan"),
+      onError: (err: any) => toast.error("Gagal menyimpan menu WhatsApp: " + err.message),
     });
   };
 
@@ -133,10 +128,12 @@ const HomePage = () => {
   };
 
   const updateFloatingButton = (id: string, updates: Partial<FloatingButton>) => {
-    setFloatingMenuConfig({
-      ...floatingMenuConfig,
-      buttons: floatingMenuConfig.buttons.map(b => b.id === id ? { ...b, ...updates } : b)
-    });
+    setFloatingMenuConfig((prev) => ({
+      ...prev,
+      buttons: prev.buttons.map((btn) => 
+        btn.id === id ? { ...btn, ...updates } : btn
+      )
+    }));
   };
 
   if (isLoading || isFloatingLoading) {
@@ -146,13 +143,19 @@ const HomePage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-heading font-bold text-foreground">
-          Manajemen Home Page
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Kelola konten halaman beranda dan menu melayang
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-heading font-bold text-foreground">
+            Manajemen Home Page
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Kelola konten halaman beranda dan menu melayang
+          </p>
+        </div>
+        <Button onClick={handleSave} disabled={isSavingContent} className="gap-2">
+          <Save className="w-4 h-4" />
+          {isSavingContent ? "Menyimpan..." : "Simpan Semua Perubahan"}
+        </Button>
       </div>
 
       <Tabs defaultValue="hero" className="space-y-6">
@@ -280,9 +283,9 @@ const HomePage = () => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button onClick={handleSaveHero} className="gap-2">
+                <Button onClick={handleSaveHero} disabled={isSavingContent} className="gap-2">
                   <Save className="w-4 h-4" />
-                  Simpan Perubahan
+                  {isSavingContent ? "Menyimpan..." : "Simpan Perubahan"}
                 </Button>
               </div>
             </CardContent>
@@ -388,9 +391,9 @@ const HomePage = () => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button onClick={handleSaveFeatures} className="gap-2">
+                <Button onClick={handleSaveFeatures} disabled={isSavingContent} className="gap-2">
                   <Save className="w-4 h-4" />
-                  Simpan Perubahan
+                  {isSavingContent ? "Menyimpan..." : "Simpan Perubahan"}
                 </Button>
               </div>
             </CardContent>
@@ -451,9 +454,9 @@ const HomePage = () => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button onClick={handleSave} className="gap-2">
+                <Button onClick={handleSave} disabled={isSavingContent} className="gap-2">
                   <Save className="w-4 h-4" />
-                  Simpan Perubahan
+                  {isSavingContent ? "Menyimpan..." : "Simpan Perubahan"}
                 </Button>
               </div>
             </CardContent>
@@ -496,10 +499,13 @@ const HomePage = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <Switch 
+                            id={`visible-${button.id}`}
                             checked={button.visible} 
-                            onCheckedChange={(checked) => updateFloatingButton(button.id, { visible: checked })}
+                            onCheckedChange={(checked: boolean) => updateFloatingButton(button.id, { visible: checked })}
                           />
-                          <span className="text-sm font-medium">{button.label || "Tanpa Label"}</span>
+                          <Label htmlFor={`visible-${button.id}`} className="text-sm font-medium cursor-pointer">
+                            {button.label || "Tanpa Label"}
+                          </Label>
                         </div>
                         <Button 
                           type="button" 
@@ -600,9 +606,9 @@ const HomePage = () => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button onClick={handleSaveCTA} className="gap-2">
+                <Button onClick={handleSaveCTA} disabled={isSavingContent} className="gap-2">
                   <Save className="w-4 h-4" />
-                  Simpan Perubahan
+                  {isSavingContent ? "Menyimpan..." : "Simpan Perubahan"}
                 </Button>
               </div>
             </CardContent>

@@ -39,11 +39,10 @@ import {
   useDeleteProduct,
   PRODUCTS_QUERY_KEY,
 } from "@/hooks/useProducts";
-import { Product, productsApi } from "@/lib/api";
+import type { Product } from "@/lib/api";
+import { productsApi } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
-import { Upload, X } from "lucide-react";
 import { uploadProductImage } from "@/lib/storage";
-import { supabase } from "@/integrations/supabase/client";
 import { getProductImageUrl } from "@/lib/imageUtils";
 
 const Products = () => {
@@ -643,7 +642,7 @@ const Products = () => {
               <Label htmlFor="category">Kategori *</Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                onValueChange={(value: string) => setFormData({ ...formData, category: value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih kategori" />
@@ -740,7 +739,7 @@ const Products = () => {
                 <Switch
                   id="is_active"
                   checked={formData.is_active}
-                  onCheckedChange={(checked) =>
+                  onCheckedChange={(checked: boolean) =>
                     setFormData({ ...formData, is_active: checked })
                   }
                 />
@@ -751,7 +750,7 @@ const Products = () => {
                 <Switch
                   id="is_featured"
                   checked={formData.is_featured}
-                  onCheckedChange={(checked) =>
+                  onCheckedChange={(checked: boolean) =>
                     setFormData({ ...formData, is_featured: checked })
                   }
                 />
@@ -762,18 +761,18 @@ const Products = () => {
                 <Switch
                   id="is_best_seller"
                   checked={formData.is_best_seller}
-                  onCheckedChange={(checked) =>
+                  onCheckedChange={(checked: boolean) =>
                     setFormData({ ...formData, is_best_seller: checked })
                   }
                 />
               </div>
 
               <div className="flex items-center justify-between">
-                <Label htmlFor="is_exclusive">Exclusive</Label>
+                <Label htmlFor="is_exclusive">Eksklusif</Label>
                 <Switch
                   id="is_exclusive"
                   checked={formData.is_exclusive}
-                  onCheckedChange={(checked) =>
+                  onCheckedChange={(checked: boolean) =>
                     setFormData({ ...formData, is_exclusive: checked })
                   }
                 />
@@ -784,7 +783,7 @@ const Products = () => {
                 <Switch
                   id="is_premium"
                   checked={formData.is_premium}
-                  onCheckedChange={(checked) =>
+                  onCheckedChange={(checked: boolean) =>
                     setFormData({ ...formData, is_premium: checked })
                   }
                 />

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { footerSettingsApi, FooterSettings } from "@/lib/api";
+import { footerSettingsApi } from "@/lib/api";
+import type { FooterSettings } from "@/lib/api";
 
 export const FOOTER_SETTINGS_QUERY_KEY = ["footer_settings"];
 

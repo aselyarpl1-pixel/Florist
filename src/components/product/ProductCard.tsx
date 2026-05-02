@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Product as ApiProduct } from "@/lib/api";
 import { Product as DataProduct } from "@/data/products";
 import { getProductWhatsAppUrl } from "@/config/whatsapp";
-import { supabase } from "@/integrations/supabase/client";
 import { getProductImageUrl } from "@/lib/imageUtils";
 
 interface ProductCardProps {
   product: ApiProduct | DataProduct;
 }
 
-const formatPrice = (price: number) => {
+const formatPrice = (price: number | undefined) => {
+  if (price === undefined) return "";
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
@@ -30,19 +30,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const shortDescription = 'shortDescription' in product ? product.shortDescription : product.description?.substring(0, 100);
   
   // Robust check for prices
-  const originalPrice = 'originalPrice' in product ? product.originalPrice : ('original_price' in product ? product.original_price : undefined);
+  const originalPrice: number | undefined = 'originalPrice' in product ? product.originalPrice : ('original_price' in product ? Number(product.original_price) : undefined);
   
   // Robust check for tags (handle both camelCase from local data and snake_case from API)
   // We use type assertion to handle inconsistent property names across different data sources
-  const p = product as { 
-    bestSeller?: boolean; 
-    is_best_seller?: boolean; 
-    best_seller?: boolean;
-    exclusive?: boolean;
-    is_exclusive?: boolean;
-    premium?: boolean;
-    is_premium?: boolean;
-  };
+  const p = product as any;
   const isBestSeller = p.bestSeller || p.is_best_seller || p.best_seller || false;
   const isExclusive = p.exclusive || p.is_exclusive || false;
   const isPremium = p.premium || p.is_premium || false;
@@ -60,8 +52,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const cleanSlug = getCleanSlug(product.slug);
 
-  const discountPercentage = (originalPrice || 0) > 0 
-    ? Math.round(((originalPrice! - product.price) / originalPrice!) * 100) 
+  const discountPercentage = (originalPrice || 0) > 0 && originalPrice
+    ? Math.round(((originalPrice - product.price) / originalPrice) * 100) 
     : 0;
 
   return (
@@ -122,13 +114,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
             <span className="font-heading text-xl font-bold text-primary">
               {formatPrice(product.price)}
             </span>
-            {(originalPrice || 0) > 0 && (
+            {originalPrice && originalPrice > 0 && (
               <span className="text-sm text-muted-foreground line-through decoration-red-500/50">
                 {formatPrice(originalPrice)}
               </span>
             )}
           </div>
-          {(originalPrice || 0) > 0 && (
+          {originalPrice && originalPrice > 0 && (
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded">
                 -{discountPercentage}%
