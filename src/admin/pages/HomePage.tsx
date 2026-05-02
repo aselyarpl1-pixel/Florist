@@ -128,12 +128,12 @@ const HomePage = () => {
   };
 
   const updateFloatingButton = (id: string, updates: Partial<FloatingButton>) => {
-    setFloatingMenuConfig((prev) => ({
-      ...prev,
-      buttons: prev.buttons.map((btn) => 
-        btn.id === id ? { ...btn, ...updates } : btn
+    setFloatingMenuConfig({
+      ...floatingMenuConfig,
+      buttons: floatingMenuConfig.buttons.map(b => 
+        b.id === id ? { ...b, ...updates } : b
       )
-    }));
+    });
   };
 
   if (isLoading || isFloatingLoading) {
@@ -533,6 +533,20 @@ const HomePage = () => {
                             onChange={(e) => updateFloatingButton(button.id, { href: e.target.value })}
                           />
                         </div>
+                        <div className="space-y-2">
+                          <Label>Icon (Lucide)</Label>
+                          <Input 
+                            value={button.icon}
+                            onChange={(e) => updateFloatingButton(button.id, { icon: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Warna</Label>
+                          <Input 
+                            value={button.color}
+                            onChange={(e) => updateFloatingButton(button.id, { color: e.target.value })}
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -542,7 +556,7 @@ const HomePage = () => {
               <div className="flex justify-end pt-4">
                 <Button onClick={handleSaveFloatingMenu} disabled={isSavingFloating} className="gap-2">
                   <Save className="w-4 h-4" />
-                  {isSavingFloating ? "Menyimpan..." : "Simpan Menu Melayang"}
+                  {isSavingFloating ? "Menyimpan..." : "Simpan Perubahan"}
                 </Button>
               </div>
             </CardContent>
