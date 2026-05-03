@@ -3,6 +3,7 @@ import { Package, MessageSquare, Inbox, Eye, TrendingUp, Users } from "lucide-re
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { productsApi, testimonialsApi } from "@/lib/api";
 
 interface Stats {
   totalProducts: number;
@@ -28,15 +29,15 @@ const AdminDashboard = () => {
     const fetchStats = async () => {
       try {
         const [
-          productsRes,
-          testimonialsRes,
+          allProducts,
+          allTestimonials,
           pendingTestimonialsRes,
           inquiriesRes,
           pendingInquiriesRes,
           statsRes,
         ] = await Promise.all([
-          supabase.from("products").select("id", { count: "exact", head: true }),
-          supabase.from("testimonials").select("id", { count: "exact", head: true }),
+          productsApi.getAll(),
+          testimonialsApi.getAll(),
           supabase.from("testimonials").select("id", { count: "exact", head: true }).eq("is_approved", false),
           supabase.from("inquiries").select("id", { count: "exact", head: true }),
           supabase.from("inquiries").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -46,8 +47,8 @@ const AdminDashboard = () => {
         const totalPageViews = statsRes.data?.reduce((sum, stat) => sum + (stat.page_views || 0), 0) || 0;
 
         setStats({
-          totalProducts: productsRes.count || 0,
-          totalTestimonials: testimonialsRes.count || 0,
+          totalProducts: allProducts.length,
+          totalTestimonials: allTestimonials.length,
           pendingTestimonials: pendingTestimonialsRes.count || 0,
           totalInquiries: inquiriesRes.count || 0,
           pendingInquiries: pendingInquiriesRes.count || 0,

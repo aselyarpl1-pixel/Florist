@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Plus, Pencil, Trash2, Search, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,21 +23,10 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from "@/hooks/useProducts";
+import { Product } from "@/lib/api";
 
 /* ================= TYPES ================= */
-
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  price: number;
-  category: string;
-  image: string | null;
-  is_featured: boolean;
-  is_active: boolean;
-  created_at: string;
-}
 
 interface ProductForm {
   name: string;
@@ -46,7 +34,7 @@ interface ProductForm {
   description: string;
   price: number;
   category: string;
-  image: string;
+  image_url: string;
   is_featured: boolean;
   is_active: boolean;
 }
@@ -57,26 +45,23 @@ const initialFormData: ProductForm = {
   description: "",
   price: 0,
   category: "",
-  image: "",
+  image_url: "",
   is_featured: false,
   is_active: true,
 };
 
 export default function AdminProducts() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: products = [], isLoading } = useProducts();
+  const createProduct = useCreateProduct();
+  const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState<ProductForm>(initialFormData);
 
   const { toast } = useToast();
-  const toastRef = useRef(toast);
-
-  useEffect(() => {
-    toastRef.current = toast;
-  }, [toast]);
 
   /* ================= HELPERS ================= */
 
@@ -90,33 +75,6 @@ export default function AdminProducts() {
       minimumFractionDigits: 0,
     }).format(price);
 
-  /* ================= FETCH DATA ================= */
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("products")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (error) throw error;
-        setProducts(data ?? []);
-      } catch (err) {
-        console.error(err);
-        toastRef.current({
-          title: "Error",
-          description: "Gagal memuat produk",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    load();
-  }, []);
-
   /* ================= HANDLERS ================= */
 
   const handleOpenDialog = (product?: Product) => {
@@ -128,9 +86,9 @@ export default function AdminProducts() {
         description: product.description ?? "",
         price: product.price,
         category: product.category,
-        image: product.image ?? "",
-        is_featured: product.is_featured,
-        is_active: product.is_active,
+        image_url: product.image_url ?? "",
+        is_featured: product.is_featured ?? false,
+        is_active: product.is_active ?? true,
       });
     } else {
       setEditingProduct(null);
@@ -141,42 +99,26 @@ export default function AdminProducts() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
-    const payload = {
+    const payload: Partial<Product> = {
       name: formData.name,
       slug: formData.slug || generateSlug(formData.name),
       description: formData.description || null,
       price: formData.price,
       category: formData.category,
-      image: formData.image || null,
+      image_url: formData.image_url || null,
       is_featured: formData.is_featured,
       is_active: formData.is_active,
     };
 
     try {
       if (editingProduct) {
-        const { error } = await supabase
-          .from("products")
-          .update(payload)
-          .eq("id", editingProduct.id);
-
-        if (error) throw error;
-
-        setProducts((prev) =>
-          prev.map((p) =>
-            p.id === editingProduct.id ? { ...p, ...payload } : p
-          )
-        );
+        await updateProduct.mutateAsync({ 
+          id: editingProduct.id, 
+          updates: payload 
+        });
       } else {
-        const { data, error } = await supabase
-          .from("products")
-          .insert(payload)
-          .select()
-          .single();
-
-        if (error) throw error;
-        if (data) setProducts((prev) => [data, ...prev]);
+        await createProduct.mutateAsync(payload);
       }
 
       toast({ title: "Berhasil", description: "Produk disimpan" });
@@ -188,8 +130,6 @@ export default function AdminProducts() {
         description: "Gagal menyimpan produk",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -197,10 +137,7 @@ export default function AdminProducts() {
     if (!confirm("Yakin ingin menghapus produk ini?")) return;
 
     try {
-      const { error } = await supabase.from("products").delete().eq("id", id);
-      if (error) throw error;
-
-      setProducts((prev) => prev.filter((p) => p.id !== id));
+      await deleteProduct.mutateAsync(id);
       toast({ title: "Berhasil", description: "Produk dihapus" });
     } catch (err) {
       console.error(err);
@@ -211,6 +148,8 @@ export default function AdminProducts() {
       });
     }
   };
+
+  const isSubmitting = createProduct.isPending || updateProduct.isPending;
 
   const filteredProducts = products.filter(
     (p) =>

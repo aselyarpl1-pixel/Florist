@@ -65,13 +65,20 @@ export const productsApi = {
 
       if (error) throw error;
       
-      // If data is empty from Supabase AND we have local data, 
-      // return local data but DON'T make it look like Supabase is empty
-      if (!data || data.length === 0) {
-        return localProducts.map(mapToApiProduct);
-      }
+      const apiProducts = data as Product[] || [];
+      const localApiProducts = localProducts.map(mapToApiProduct);
+
+      // Merge results: prefer Supabase products over local ones if slugs match
+      const mergedProducts = [...apiProducts];
       
-      return data as Product[];
+      localApiProducts.forEach(localP => {
+        const exists = mergedProducts.some(p => p.slug === localP.slug);
+        if (!exists) {
+          mergedProducts.push(localP);
+        }
+      });
+      
+      return mergedProducts;
     } catch (error) {
       console.warn("Supabase fetch failed, falling back to local data:", error);
       return localProducts.map(mapToApiProduct);
@@ -161,7 +168,21 @@ export const productsApi = {
         .limit(limit);
 
       if (error) throw error;
-      return data as Product[];
+      
+      const apiProducts = data as Product[] || [];
+      const localApiProducts = localProducts
+        .filter(p => p.category === category)
+        .map(mapToApiProduct);
+
+      // Merge results
+      const mergedProducts = [...apiProducts];
+      localApiProducts.forEach(localP => {
+        if (!mergedProducts.some(p => p.slug === localP.slug)) {
+          mergedProducts.push(localP);
+        }
+      });
+
+      return mergedProducts.slice(0, limit);
     } catch (error) {
       console.warn("Supabase fetch failed, falling back to local data:", error);
       return localProducts
@@ -353,12 +374,18 @@ export const testimonialsApi = {
 
       if (error) throw error;
       
-      // If data is empty from Supabase, return local data as fallback
-      if (!data || data.length === 0) {
-        return localTestimonials.map(mapToApiTestimonial);
-      }
+      const apiTestimonials = data as Testimonial[] || [];
+      const localApiTestimonials = localTestimonials.map(mapToApiTestimonial);
+
+      // Merge results: prefer Supabase testimonials over local ones if names match (as simple heuristic)
+      const mergedTestimonials = [...apiTestimonials];
+      localApiTestimonials.forEach(localT => {
+        if (!mergedTestimonials.some(t => t.name === localT.name)) {
+          mergedTestimonials.push(localT);
+        }
+      });
       
-      return data as Testimonial[];
+      return mergedTestimonials;
     } catch (error) {
       console.warn("Supabase fetch failed, falling back to local data:", error);
       return localTestimonials.map(mapToApiTestimonial);
