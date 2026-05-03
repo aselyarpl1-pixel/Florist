@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Pencil, Trash2, Eye, Search, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, Search, ChevronLeft, ChevronRight, RefreshCw, Loader2, Upload, X, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -199,7 +200,12 @@ const Products = () => {
     return result.url!;
   };
 
-  const handleSave = async () => {
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     // Validasi field wajib
     if (!formData.name) {
       toast.error("Nama produk wajib diisi");
@@ -209,49 +215,25 @@ const Products = () => {
       toast.error("Kategori wajib dipilih");
       return;
     }
-    if (!formData.price) {
-      toast.error("Harga produk wajib diisi");
+    if (formData.price <= 0) {
+      toast.error("Harga produk harus lebih dari 0");
       return;
     }
 
+    setIsUploading(true); // Reuse this state as "isProcessing"
     try {
       let imageUrl = formData.image_url;
 
       // Handle Image Upload
       if (selectedFile) {
-        setIsUploading(true);
         try {
           imageUrl = await uploadImage(selectedFile);
-          toast.success("Gambar berhasil diupload ke Supabase");
-        } catch (error) {
+        } catch (error: any) {
           console.error("Upload failed:", error);
-          const errorMessage = error instanceof Error 
-            ? error.message 
-            : "Gagal mengupload gambar";
-          
-          // Show error with helpful suggestion
-          toast.error(errorMessage, {
-            description: "Gunakan input URL manual di bawah, atau setup Supabase terlebih dahulu.",
-            duration: 5000,
-          });
+          toast.error("Gagal mengupload gambar: " + (error.message || "Unknown error"));
           setIsUploading(false);
-          
-          // Don't block save - user can use manual URL instead
-          setSelectedFile(null); // Clear failed file
           return;
         }
-        setIsUploading(false);
-      }
-
-      // Check if Supabase is configured before trying to save to database
-      const { isSupabaseConfigured } = await import("@/integrations/supabase/client");
-      
-      if (!isSupabaseConfigured) {
-        toast.error("Supabase belum dikonfigurasi!", {
-          description: "Silakan isi VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di file .env terlebih dahulu.",
-          duration: 6000
-        });
-        return;
       }
 
       if (editingProduct) {
@@ -259,30 +241,28 @@ const Products = () => {
           id: editingProduct.id,
           updates: { ...formData, image_url: imageUrl },
         });
-        toast.success("Produk berhasil diperbarui di Supabase");
+        toast.success("Produk berhasil diperbarui");
       } else {
-        const slug = formData.slug || formData.name
+        const slug = (formData.slug || formData.name
           .toLowerCase()
           .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9-]/g, "");
+          .replace(/[^a-z0-9-]/g, "")).trim();
 
         await createMutation.mutateAsync({
           ...formData,
           image_url: imageUrl,
           slug,
         });
-        toast.success("Produk berhasil ditambahkan ke Supabase");
+        toast.success("Produk berhasil ditambahkan");
       }
+      
       setDialogOpen(false);
-      // Force refresh data
       queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
-    } catch (error) {
-      setIsUploading(false);
-      toast.error("Terjadi kesalahan. Silakan coba lagi.");
+    } catch (error: any) {
       console.error("Error saving product:", error);
-      if (typeof error === 'object' && error !== null) {
-         console.error("Error details:", JSON.stringify(error, null, 2));
-      }
+      toast.error("Gagal menyimpan produk: " + (error.message || "Terjadi kesalahan"));
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -556,10 +536,9 @@ const Products = () => {
         </CardContent>
       </Card>
 
-      {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
+          <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle>
               {editingProduct ? "Edit Produk" : "Tambah Produk Baru"}
             </DialogTitle>
@@ -567,240 +546,249 @@ const Products = () => {
               Isi form berikut untuk {editingProduct ? "mengedit" : "menambahkan"} produk.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nama Produk *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Contoh: Buket Mawar Merah Premium"
-              />
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="price">Harga *</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) =>
-                    setFormData({ ...formData, price: Number(e.target.value) })
-                  }
-                  placeholder="350000"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="original_price">Harga Sebelum Diskon (Coret)</Label>
-                <Input
-                  id="original_price"
-                  type="number"
-                  value={formData.original_price}
-                  onChange={(e) =>
-                    setFormData({ ...formData, original_price: Number(e.target.value) })
-                  }
-                  placeholder="Contoh: 450000"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Kosongkan jika tidak ada diskon
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="slug">Slug (URL)</Label>
-              <Input
-                id="slug"
-                value={formData.slug}
-                onChange={(e) =>
-                  setFormData({ ...formData, slug: e.target.value })
-                }
-                placeholder="buket-mawar-merah"
-              />
-              <p className="text-xs text-muted-foreground">
-                Biarkan kosong untuk generate otomatis dari nama produk
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="product_url">Link Eksternal / Marketplace (Opsional)</Label>
-              <Input
-                id="product_url"
-                value={formData.product_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, product_url: e.target.value })
-                }
-                placeholder="https://tokopedia.com/..."
-              />
-              <p className="text-xs text-muted-foreground">
-                Jika diisi, tombol "Pesan Sekarang" akan mengarah ke link ini langsung.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="category">Kategori *</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value: string) => setFormData({ ...formData, category: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih kategori" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.filter((c) => c.id !== "all").map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="image_url">Gambar Produk</Label>
-              <div className="flex items-center gap-4">
-                <div className="relative w-24 h-24 border rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                  {imagePreview || formData.image_url ? (
-                    <img
-                      src={imagePreview || getProductImageUrl(formData.image_url)}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-muted-foreground text-xs text-center p-2">
-                      No Image
-                    </div>
-                  )}
-                  {isUploading && (
-                    <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                    </div>
-                  )}
+          <form onSubmit={handleSave} className="flex-1 overflow-hidden flex flex-col">
+            <ScrollArea className="flex-1 px-6 py-4">
+              <div className="space-y-4 pb-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nama Produk *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Contoh: Buket Mawar Merah Premium"
+                    required
+                  />
                 </div>
-                <div className="flex-1 space-y-2">
-                  <div className="space-y-1.5">
-                    <div className="text-sm font-medium">Upload File (Butuh Supabase)</div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Harga *</Label>
                     <Input
-                      id="image_upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="cursor-pointer"
-                      disabled={isUploading}
+                      id="price"
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) =>
+                        setFormData({ ...formData, price: Number(e.target.value) })
+                      }
+                      placeholder="350000"
+                      required
                     />
                   </div>
-                  <div className="relative py-2">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">
-                        Atau
-                      </span>
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="text-sm font-medium">URL Gambar Manual</div>
+                  <div className="space-y-2">
+                    <Label htmlFor="original_price">Harga Sebelum Diskon (Coret)</Label>
                     <Input
-                      id="image_url"
-                      value={formData.image_url}
-                      onChange={(e) => {
-                        setFormData({ ...formData, image_url: e.target.value });
-                        setImagePreview(null); // Clear file preview if using manual URL
-                        setSelectedFile(null); // Clear file if using manual URL
-                      }}
-                      placeholder="https://example.com/image.jpg"
+                      id="original_price"
+                      type="number"
+                      value={formData.original_price}
+                      onChange={(e) =>
+                        setFormData({ ...formData, original_price: Number(e.target.value) })
+                      }
+                      placeholder="Contoh: 450000"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Bisa gunakan link dari Unsplash, Pexels, atau CDN lainnya
+                      Kosongkan jika tidak ada diskon
                     </p>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Deskripsi Lengkap</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                placeholder="Deskripsi lengkap produk"
-                rows={4}
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="slug">Slug (URL)</Label>
+                  <Input
+                    id="slug"
+                    value={formData.slug}
+                    onChange={(e) =>
+                      setFormData({ ...formData, slug: e.target.value })
+                    }
+                    placeholder="buket-mawar-merah"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Biarkan kosong untuk generate otomatis dari nama produk
+                  </p>
+                </div>
 
-            <div className="space-y-4 pt-4 border-t">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="is_active">Status Aktif</Label>
-                <Switch
-                  id="is_active"
-                  checked={formData.is_active}
-                  onCheckedChange={(checked: boolean) =>
-                    setFormData({ ...formData, is_active: checked })
-                  }
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="product_url">Link Eksternal / Marketplace (Opsional)</Label>
+                  <Input
+                    id="product_url"
+                    value={formData.product_url}
+                    onChange={(e) =>
+                      setFormData({ ...formData, product_url: e.target.value })
+                    }
+                    placeholder="https://tokopedia.com/..."
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Jika diisi, tombol "Pesan Sekarang" akan mengarah ke link ini langsung.
+                  </p>
+                </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="is_featured">Produk Unggulan</Label>
-                <Switch
-                  id="is_featured"
-                  checked={formData.is_featured}
-                  onCheckedChange={(checked: boolean) =>
-                    setFormData({ ...formData, is_featured: checked })
-                  }
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category">Kategori *</Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value: string) => setFormData({ ...formData, category: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih kategori" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.filter((c) => c.id !== "all").map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="is_best_seller">Best Seller</Label>
-                <Switch
-                  id="is_best_seller"
-                  checked={formData.is_best_seller}
-                  onCheckedChange={(checked: boolean) =>
-                    setFormData({ ...formData, is_best_seller: checked })
-                  }
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="image_url">Gambar Produk</Label>
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-24 h-24 border rounded-md overflow-hidden bg-muted flex items-center justify-center">
+                      {imagePreview || formData.image_url ? (
+                        <img
+                          src={imagePreview || getProductImageUrl(formData.image_url)}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-muted-foreground text-xs text-center p-2">
+                          No Image
+                        </div>
+                      )}
+                      {isUploading && (
+                        <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                          <Loader2 className="animate-spin h-6 w-6 text-primary" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="space-y-1.5">
+                        <div className="text-sm font-medium">Upload File (Butuh Supabase)</div>
+                        <Input
+                          id="image_upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="cursor-pointer"
+                          disabled={isUploading}
+                        />
+                      </div>
+                      <div className="relative py-2">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">
+                            Atau
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <div className="text-sm font-medium">URL Gambar Manual</div>
+                        <Input
+                          id="image_url"
+                          value={formData.image_url}
+                          onChange={(e) => {
+                            setFormData({ ...formData, image_url: e.target.value });
+                            setImagePreview(null);
+                            setSelectedFile(null);
+                          }}
+                          placeholder="https://example.com/image.jpg"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="is_exclusive">Eksklusif</Label>
-                <Switch
-                  id="is_exclusive"
-                  checked={formData.is_exclusive}
-                  onCheckedChange={(checked: boolean) =>
-                    setFormData({ ...formData, is_exclusive: checked })
-                  }
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Deskripsi Lengkap</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                    placeholder="Deskripsi lengkap produk"
+                    rows={4}
+                  />
+                </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="is_premium">Premium</Label>
-                <Switch
-                  id="is_premium"
-                  checked={formData.is_premium}
-                  onCheckedChange={(checked: boolean) =>
-                    setFormData({ ...formData, is_premium: checked })
-                  }
-                />
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="is_active">Status Aktif</Label>
+                    <Switch
+                      id="is_active"
+                      checked={formData.is_active}
+                      onCheckedChange={(checked: boolean) =>
+                        setFormData({ ...formData, is_active: checked })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="is_featured">Produk Unggulan</Label>
+                    <Switch
+                      id="is_featured"
+                      checked={formData.is_featured}
+                      onCheckedChange={(checked: boolean) =>
+                        setFormData({ ...formData, is_featured: checked })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="is_best_seller">Best Seller</Label>
+                    <Switch
+                      id="is_best_seller"
+                      checked={formData.is_best_seller}
+                      onCheckedChange={(checked: boolean) =>
+                        setFormData({ ...formData, is_best_seller: checked })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="is_exclusive">Eksklusif</Label>
+                    <Switch
+                      id="is_exclusive"
+                      checked={formData.is_exclusive}
+                      onCheckedChange={(checked: boolean) =>
+                        setFormData({ ...formData, is_exclusive: checked })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="is_premium">Premium</Label>
+                    <Switch
+                      id="is_premium"
+                      checked={formData.is_premium}
+                      onCheckedChange={(checked: boolean) =>
+                        setFormData({ ...formData, is_premium: checked })
+                      }
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Batal
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={createMutation.isPending || updateMutation.isPending}
-            >
-              {(createMutation.isPending || updateMutation.isPending) ? "Menyimpan..." : "Simpan"}
-            </Button>
-          </DialogFooter>
+            </ScrollArea>
+            <DialogFooter className="px-6 py-4 border-t bg-muted/10">
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                disabled={isUploading || createMutation.isPending || updateMutation.isPending}
+              >
+                {(isUploading || createMutation.isPending || updateMutation.isPending) ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Memproses...
+                  </>
+                ) : "Simpan"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 
