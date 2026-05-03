@@ -102,8 +102,8 @@ const Products = () => {
 
   const [formData, setFormData] = useState({
     name: "",
-    price: 0,
-    original_price: 0,
+    price: "" as string | number,
+    original_price: "" as string | number,
     description: "",
     category: "",
     slug: "",
@@ -142,7 +142,7 @@ const Products = () => {
       setFormData({
         name: product.name,
         price: product.price,
-        original_price: product.original_price || 0,
+        original_price: product.original_price || "",
         description: product.description || "",
         category: product.category,
         slug: product.slug,
@@ -159,8 +159,8 @@ const Products = () => {
       setImagePreview(null);
       setFormData({
         name: "",
-        price: 0,
-        original_price: 0,
+        price: "",
+        original_price: "",
         description: "",
         category: "",
         slug: "",
@@ -215,7 +215,9 @@ const Products = () => {
       toast.error("Kategori wajib dipilih");
       return;
     }
-    if (formData.price <= 0) {
+    
+    const price = Number(formData.price);
+    if (isNaN(price) || price <= 0) {
       toast.error("Harga produk harus lebih dari 0");
       return;
     }
@@ -246,6 +248,8 @@ const Products = () => {
       // 2. Persiapkan data untuk disimpan
       const productData = {
         ...formData,
+        price: price,
+        original_price: formData.original_price ? Number(formData.original_price) : null,
         image_url: finalImageUrl,
         slug: (formData.slug || formData.name
           .toLowerCase()
@@ -418,16 +422,16 @@ const Products = () => {
                     </TableCell>
                     <TableCell className="py-4">
                       <div className="flex flex-col gap-1">
-                        <span className="font-semibold text-base">
+                        <span className="font-semibold text-base text-primary">
                           Rp {product.price.toLocaleString("id-ID")}
                         </span>
-                        {(product.original_price || 0) > 0 && (
+                        {product.original_price && product.original_price > product.price && (
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs text-muted-foreground line-through decoration-red-500/50">
-                              Rp {(product.original_price || 0).toLocaleString("id-ID")}
+                              Rp {product.original_price.toLocaleString("id-ID")}
                             </span>
-                            <span className="text-[10px] font-bold text-red-600 bg-red-50 px-1 rounded">
-                              -{Math.round(((product.original_price! - product.price) / product.original_price!) * 100)}%
+                            <span className="text-[10px] font-bold text-white bg-red-600 px-1 rounded shadow-sm">
+                              -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
                             </span>
                           </div>
                         )}
@@ -580,7 +584,7 @@ const Products = () => {
                       type="number"
                       value={formData.price}
                       onChange={(e) =>
-                        setFormData({ ...formData, price: Number(e.target.value) })
+                        setFormData({ ...formData, price: e.target.value })
                       }
                       placeholder="350000"
                       required
@@ -593,7 +597,7 @@ const Products = () => {
                       type="number"
                       value={formData.original_price}
                       onChange={(e) =>
-                        setFormData({ ...formData, original_price: Number(e.target.value) })
+                        setFormData({ ...formData, original_price: e.target.value })
                       }
                       placeholder="Contoh: 450000"
                     />

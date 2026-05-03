@@ -39,7 +39,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const shortDescription = 'shortDescription' in product ? product.shortDescription : product.description?.substring(0, 100);
   
   // Robust check for prices
-  const originalPrice: number | undefined = 'originalPrice' in product ? product.originalPrice : ('original_price' in product ? Number(product.original_price) : undefined);
+  const originalPrice: number | undefined = (() => {
+    if ('originalPrice' in product && product.originalPrice) return Number(product.originalPrice);
+    if ('original_price' in product && product.original_price) return Number(product.original_price);
+    return undefined;
+  })();
   
   // Robust check for tags (handle both camelCase from local data and snake_case from API)
   // We use type assertion to handle inconsistent property names across different data sources
@@ -61,7 +65,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const cleanSlug = getCleanSlug(product.slug);
 
-  const discountPercentage = (originalPrice || 0) > 0 && originalPrice
+  const discountPercentage = originalPrice && originalPrice > product.price
     ? Math.round(((originalPrice - product.price) / originalPrice) * 100) 
     : 0;
 
@@ -119,23 +123,23 @@ const ProductCard = ({ product }: ProductCardProps) => {
         
         {/* Price */}
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-heading text-lg font-bold text-primary">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="font-heading text-xl font-bold text-primary">
               {formatPrice(product.price)}
             </span>
-            {originalPrice && originalPrice > 0 && (
+            {originalPrice && originalPrice > product.price && (
               <span className="text-xs text-muted-foreground line-through decoration-red-500/50">
                 {formatPrice(originalPrice)}
               </span>
             )}
           </div>
-          {originalPrice && originalPrice > 0 && (
-            <div className="flex items-center gap-1.5">
-              <span className="text-[9px] font-bold bg-red-100 text-red-600 px-1 py-0.5 rounded">
-                -{discountPercentage}%
+          {originalPrice && originalPrice > product.price && (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded shadow-sm">
+                Hemat {discountPercentage}%
               </span>
-              <span className="text-[10px] font-medium text-red-600">
-                Hemat {formatPrice(originalPrice - product.price)}
+              <span className="text-[11px] font-medium text-red-600">
+                Lagi Promo!
               </span>
             </div>
           )}

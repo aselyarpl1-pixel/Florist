@@ -79,7 +79,7 @@ const ProductDetail = () => {
     return <NotFound />;
   }
 
-  const discount = (product.original_price || 0) > 0
+  const discount = (product.original_price || 0) > product.price
     ? Math.round((((product.original_price || 0) - product.price) / (product.original_price || 1)) * 100)
     : 0; 
 
@@ -199,24 +199,24 @@ const ProductDetail = () => {
               </div>
 
               {/* Price */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <span className="font-heading text-3xl md:text-4xl font-bold text-primary">
+              <div className="space-y-3">
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <span className="font-heading text-4xl md:text-5xl font-bold text-primary">
                     {formatPrice(product.price)}
                   </span>
-                  {(product.original_price || 0) > 0 && (
+                  {discount > 0 && (
                     <span className="text-xl text-muted-foreground line-through decoration-red-500/50">
                       {formatPrice(product.original_price || 0)}
                     </span>
                   )}
                 </div>
-                {(product.original_price || 0) > 0 && (
+                {discount > 0 && (
                   <div className="flex items-center gap-2">
-                    <span className="bg-red-100 text-red-600 text-sm font-bold px-2 py-0.5 rounded">
-                      -{discount}%
+                    <span className="bg-red-600 text-white text-sm font-bold px-2 py-1 rounded shadow-sm">
+                      Hemat {discount}%
                     </span>
-                    <span className="text-red-600 font-medium">
-                      Hemat {formatPrice((product.original_price || 0) - product.price)}
+                    <span className="text-red-600 font-semibold text-lg">
+                      Promo Spesial!
                     </span>
                   </div>
                 )}
