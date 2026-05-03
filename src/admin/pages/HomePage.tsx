@@ -8,11 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { useHomeContent, useSaveHomeContent } from "@/hooks/useHomeContent";
+import { useHomeContent, useSaveHomeContent, HOME_CONTENT_QUERY_KEY } from "@/hooks/useHomeContent";
 import { useFloatingMenu, useSaveFloatingMenu } from "@/hooks/useFloatingMenu";
 import type { HomeContent, FloatingButton } from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 const HomePage = () => {
+  const queryClient = useQueryClient();
   const { data: serverContent, isLoading } = useHomeContent();
   const { mutate: saveContent, isPending: isSavingContent } = useSaveHomeContent();
   const { data: floatingMenu, isLoading: isFloatingLoading } = useFloatingMenu();
@@ -89,7 +91,11 @@ const HomePage = () => {
     };
     
     saveContent(payload, {
-      onSuccess: () => toast.success("Konten berhasil disimpan"),
+      onSuccess: () => {
+        toast.success("Konten berhasil disimpan");
+        // Invalidate queries to ensure real-time update
+        queryClient.invalidateQueries({ queryKey: HOME_CONTENT_QUERY_KEY });
+      },
       onError: (err: any) => toast.error("Gagal menyimpan konten: " + err.message),
     });
   };
