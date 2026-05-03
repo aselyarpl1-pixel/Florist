@@ -7,10 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { useAboutContent, useSaveAboutContent } from "@/hooks/useAboutContent";
+import { useAboutContent, useSaveAboutContent, ABOUT_CONTENT_QUERY_KEY } from "@/hooks/useAboutContent";
 import { AboutContent } from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AboutPage = () => {
+  const queryClient = useQueryClient();
   const { data: serverContent, isLoading } = useAboutContent();
   const { mutate: saveContent, isPending } = useSaveAboutContent();
 
@@ -55,6 +57,8 @@ const AboutPage = () => {
     saveContent(payload, {
       onSuccess: () => {
         toast.success("Konten Tentang Kami berhasil disimpan");
+        // Invalidate queries to ensure real-time update
+        queryClient.invalidateQueries({ queryKey: ABOUT_CONTENT_QUERY_KEY });
       },
       onError: (err) => {
         console.error(err);

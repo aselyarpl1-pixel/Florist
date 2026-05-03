@@ -16,9 +16,10 @@ import {
 } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { useNavigation, useSaveNavigation } from "@/hooks/useNavigation";
-import { useFooterSettings, useSaveFooterSettings } from "@/hooks/useFooterSettings";
+import { useNavigation, useSaveNavigation, NAVIGATION_QUERY_KEY } from "@/hooks/useNavigation";
+import { useFooterSettings, useSaveFooterSettings, FOOTER_SETTINGS_QUERY_KEY } from "@/hooks/useFooterSettings";
 import type { MenuItem, FooterSettings as IFooterSettings } from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 
 const Settings = () => {
+  const queryClient = useQueryClient();
   // Navigation settings component
   const { data: serverNavigation } = useNavigation();
   const { mutate: saveNavigation, isPending: isSaving } = useSaveNavigation();
@@ -61,14 +63,20 @@ const Settings = () => {
 
   const handleSaveNavigation = () => {
     saveNavigation(navigation, {
-      onSuccess: () => toast.success("Navigasi berhasil disimpan"),
+      onSuccess: () => {
+        toast.success("Navigasi berhasil disimpan");
+        queryClient.invalidateQueries({ queryKey: NAVIGATION_QUERY_KEY });
+      },
       onError: () => toast.error("Gagal menyimpan navigasi"),
     });
   };
 
   const handleSaveFooter = () => {
     saveFooter(footer, {
-      onSuccess: () => toast.success("Footer berhasil disimpan"),
+      onSuccess: () => {
+        toast.success("Footer berhasil disimpan");
+        queryClient.invalidateQueries({ queryKey: FOOTER_SETTINGS_QUERY_KEY });
+      },
       onError: () => toast.error("Gagal menyimpan footer"),
     });
   };

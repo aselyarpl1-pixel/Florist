@@ -29,8 +29,10 @@ import AdminLayout from "@/admin/layout/AdminLayout";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      staleTime: 0, // Data dianggap basi seketika agar selalu fetch terbaru saat navigasi
+      gcTime: 1000 * 60 * 30, // Keep in cache for 30 mins
       retry: 1,
+      refetchOnWindowFocus: true, // Auto-update saat user kembali ke tab browser
     },
   },
 });
