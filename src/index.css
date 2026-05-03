@@ -96,13 +96,13 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-base antialiased;
   }
 }
 
 @layer utilities {
   .section-padding {
-    @apply py-16 md:py-24;
+    @apply py-12 md:py-20;
   }
   
   .container-custom {
@@ -110,7 +110,11 @@
   }
   
   .heading-section {
-    @apply font-heading text-3xl md:text-4xl lg:text-5xl font-bold;
+    @apply font-heading text-2xl md:text-3xl lg:text-4xl font-bold;
+  }
+
+  .heading-display {
+    @apply font-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
   }
   
   .btn-primary {

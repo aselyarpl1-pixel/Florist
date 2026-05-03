@@ -39,7 +39,7 @@ const HeroSection = () => {
               <h1 className="heading-display text-foreground leading-tight">
                 {heroContent.title} <span className="text-primary">{heroContent.titleHighlight}</span>
               </h1>
-              <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
+              <p className="text-base text-muted-foreground max-w-lg leading-relaxed">
                 {heroContent.description}
               </p>
             </div>

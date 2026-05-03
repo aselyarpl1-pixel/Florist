@@ -93,17 +93,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
       </Link>
 
       {/* Content */}
-      <div className="p-5 space-y-3">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider">
+      <div className="p-4 space-y-3">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
           {product.category.replace("-", " ")}
         </p>
         <Link to={`/produk/${cleanSlug}`}>
-          <h3 className="font-heading text-lg font-medium text-foreground hover:text-primary transition-colors line-clamp-1">
+          <h3 className="font-heading text-base font-medium text-foreground hover:text-primary transition-colors line-clamp-1">
             {product.name}
           </h3>
         </Link>
         {shortDescription && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="text-xs text-muted-foreground line-clamp-2">
             {shortDescription}
           </p>
         )}
@@ -111,21 +111,21 @@ const ProductCard = ({ product }: ProductCardProps) => {
         {/* Price */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-heading text-xl font-bold text-primary">
+            <span className="font-heading text-lg font-bold text-primary">
               {formatPrice(product.price)}
             </span>
             {originalPrice && originalPrice > 0 && (
-              <span className="text-sm text-muted-foreground line-through decoration-red-500/50">
+              <span className="text-xs text-muted-foreground line-through decoration-red-500/50">
                 {formatPrice(originalPrice)}
               </span>
             )}
           </div>
           {originalPrice && originalPrice > 0 && (
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded">
+              <span className="text-[9px] font-bold bg-red-100 text-red-600 px-1 py-0.5 rounded">
                 -{discountPercentage}%
               </span>
-              <span className="text-xs font-medium text-red-600">
+              <span className="text-[10px] font-medium text-red-600">
                 Hemat {formatPrice(originalPrice - product.price)}
               </span>
             </div>
