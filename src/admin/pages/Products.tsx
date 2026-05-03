@@ -558,9 +558,9 @@ const Products = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSave} className="flex-1 overflow-hidden flex flex-col">
-            <ScrollArea className="flex-1 px-6 py-4">
-              <div className="space-y-4 pb-6">
+          <form onSubmit={handleSave} className="flex-1 overflow-hidden flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
+              <div className="space-y-6 pb-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nama Produk *</Label>
                   <Input
@@ -782,7 +782,7 @@ const Products = () => {
                   </div>
                 </div>
               </div>
-            </ScrollArea>
+            </div>
             <DialogFooter className="px-6 py-4 border-t bg-muted/10">
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 Batal
