@@ -41,7 +41,8 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-accent flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-hover">
         <CardHeader className="space-y-2 text-center">
-          <div className="mx-auto mb-4">
+          <div className="mx-auto mb-4 flex flex-col items-center gap-2">
+            <img src="/favicon.ico" alt="Florist Logo" className="w-12 h-12 object-contain" />
             <span className="font-heading text-3xl font-semibold text-foreground">
               Florist
             </span>
