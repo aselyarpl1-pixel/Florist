@@ -1,3 +1,8 @@
+/**
+ * FILE: HeroSection.tsx
+ * KEGUNAAN: Bagian utama (Hero) pada halaman depan yang berisi pesan sambutan,
+ * gambar produk unggulan, statistik toko, dan tombol aksi utama.
+ */
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,7 +11,10 @@ import heroImage from "@/assets/hero-image.jpg";
 import { useHomeContent } from "@/hooks/useHomeContent";
 
 const HeroSection = () => {
+  // Mengambil konten hero dari database agar bisa diubah melalui panel admin
   const { data: content } = useHomeContent();
+  
+  // Data fallback jika koneksi database gagal atau kosong
   const heroContent = content?.hero || {
     subtitle: "Premium Gift & Flower Shop",
     title: "Hadirkan Kebahagiaan di",
@@ -21,16 +29,17 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-      {/* Background with gradient overlay */}
+      {/* Latar belakang dengan gradasi warna */}
       <div className="absolute inset-0 bg-gradient-to-br from-secondary via-background to-accent" />
       
-      {/* Decorative elements */}
+      {/* Elemen dekoratif lingkaran cahaya (blur) */}
       <div className="absolute top-20 right-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-10 w-96 h-96 bg-rose/5 rounded-full blur-3xl" />
 
       <div className="container-custom relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Content */}
+          
+          {/* Bagian Kiri: Teks dan Tombol Aksi */}
           <div className="space-y-8 animate-fade-in-up">
             <div className="space-y-4">
               <p className="text-primary font-medium tracking-wider uppercase text-sm">
@@ -44,6 +53,7 @@ const HeroSection = () => {
               </p>
             </div>
 
+            {/* Tombol Navigasi Katalog dan WhatsApp */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/katalog">
                 <Button size="lg" className="btn-primary rounded-full px-8 gap-2 group">
@@ -66,7 +76,7 @@ const HeroSection = () => {
               </a>
             </div>
 
-            {/* Trust badges */}
+            {/* Bagian Statistik Toko (Trust Badges) */}
             <div className="flex items-center gap-8 pt-4">
               <div className="text-center">
                 <p className="font-heading text-3xl font-semibold text-primary">{heroContent.statsCustomers}</p>
@@ -85,7 +95,7 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Hero Image */}
+          {/* Bagian Kanan: Gambar Produk (Hanya tampil di desktop) */}
           <div 
             className="relative hidden lg:flex items-center justify-center animate-fade-in-up" 
             style={{ animationDelay: "0.4s", animationFillMode: "both" }}
@@ -100,10 +110,11 @@ const HeroSection = () => {
                   />
                 </div>
               </div>
-              {/* Decorative frame */}
-              <div className="absolute -top-5 -right-5 w-full h-full border-2 border-primary/30 rounded-3xl -z-10" />
+              {/* Ornamen garis emas di belakang gambar */}
+              <div className="absolute -top-6 -right-6 w-full h-full border-2 border-primary/20 rounded-3xl z-0" />
             </div>
           </div>
+          
         </div>
       </div>
     </section>

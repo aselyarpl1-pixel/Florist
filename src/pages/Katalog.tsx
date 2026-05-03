@@ -1,3 +1,8 @@
+/**
+ * FILE: Katalog.tsx
+ * KEGUNAAN: Halaman Katalog Produk yang menampilkan daftar barang dagangan.
+ * Dilengkapi fitur filter kategori, pencarian produk, dan pengurutan harga (Sorting).
+ */
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, ArrowUpDown, X, MapPin, Loader2 } from "lucide-react";
@@ -10,30 +15,34 @@ import { citiesByIsland } from "@/data/citiesByIsland";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 
-// Gabungkan semua kota dari seluruh pulau
+// Menggabungkan semua kota dari data lokal untuk fitur pencarian area pengiriman
 const ALL_CITIES = Object.values(citiesByIsland).flat();
 
 const Katalog = () => {
+  // Hook untuk mengelola parameter URL (misal: ?kategori=buket)
   const [searchParams, setSearchParams] = useSearchParams();
+  // Mengambil data produk dari database
   const { data: products = [], isLoading } = useProducts();
   
+  // State untuk menyimpan kategori yang sedang dipilih
   const [selectedCategory, setSelectedCategory] = useState(
     searchParams.get("kategori") || "all"
   );
 
+  // Sinkronisasi kategori saat URL berubah
   useEffect(() => {
     setSelectedCategory(searchParams.get("kategori") || "all");
   }, [searchParams]);
 
-  /* ===== SEARCH PRODUK ===== */
-  const [productQuery, setProductQuery] = useState("");
-
-  /* ===== SEARCH KOTA ===== */
-  const [cityQuery, setCityQuery] = useState("");
+  /* ===== STATE PENCARIAN & FILTER ===== */
+  const [productQuery, setProductQuery] = useState(""); // Pencarian nama produk
+  const [cityQuery, setCityQuery] = useState(""); // Pencarian kota pengiriman
   const [selectedCity, setSelectedCity] = useState("");
   const [showCitySuggestion, setShowCitySuggestion] = useState(false);
+  const [sortOrder, setSortOrder] = useState<"none" | "asc" | "desc">("none"); // Urutan harga
+  const [showFilters, setShowFilters] = useState(false); // Toggle filter (mobile)
 
-  // Filter kota berdasarkan query
+  // Fungsi untuk memfilter daftar kota berdasarkan input user
   const citySuggestions = useMemo(() => {
     if (!cityQuery.trim() || selectedCity) return [];
     return ALL_CITIES.filter((city) =>
@@ -41,13 +50,7 @@ const Katalog = () => {
     ).slice(0, 15);
   }, [cityQuery, selectedCity]);
 
-
-  /* ===== SORTING ===== */
-  const [sortOrder, setSortOrder] = useState<"none" | "asc" | "desc">("none");
-
-  /* ===== SHOW FILTERS (mobile) ===== */
-  const [showFilters, setShowFilters] = useState(false);
-
+  // Fungsi untuk mengganti kategori dan mengupdate URL
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(categoryId);
 
@@ -58,24 +61,24 @@ const Katalog = () => {
     }
   };
 
-  /* ===== FILTERED & SORTED PRODUCTS ===== */
+  /* ===== LOGIKA UTAMA: FILTER & SORTING PRODUK ===== */
   const filteredProducts = useMemo(() => {
-    // 1. Filter by Active Status
+    // 1. Filter Produk Aktif
     let result = products.filter((p) => p.is_active !== false);
 
-    // 2. Filter by Category
+    // 2. Filter berdasarkan Kategori
     if (selectedCategory !== "all") {
       result = result.filter((p) => p.category === selectedCategory);
     }
 
-    // 3. Filter by Product Name
+    // 3. Filter berdasarkan Nama Produk (Search)
     if (productQuery.trim()) {
       result = result.filter((p) =>
         p.name.toLowerCase().includes(productQuery.toLowerCase())
       );
     }
 
-    // 4. Sort by Price
+    // 4. Pengurutan Harga (Termurah/Termahal)
     if (sortOrder === "asc") {
       result = [...result].sort((a, b) => a.price - b.price);
     } else if (sortOrder === "desc") {
@@ -85,6 +88,7 @@ const Katalog = () => {
     return result;
   }, [products, selectedCategory, productQuery, sortOrder]);
 
+  // Fungsi untuk membersihkan semua filter (Reset)
   const resetFilters = () => {
     setProductQuery("");
     setCityQuery("");

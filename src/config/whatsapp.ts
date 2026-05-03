@@ -1,20 +1,26 @@
+/**
+ * FILE: whatsapp.ts
+ * KEGUNAAN: Konfigurasi pusat untuk integrasi WhatsApp.
+ * Menyimpan nomor tujuan dan template pesan otomatis.
+ */
 // ===============================
-// WhatsApp Configuration
+// Konfigurasi WhatsApp
 // ===============================
-// Format nomor: kode negara + nomor (tanpa + dan tanpa spasi)
+// Format nomor: kode negara + nomor (tanpa '+' dan tanpa spasi)
 
 export const WHATSAPP_CONFIG = {
+  // Nomor WhatsApp tujuan (Pemilik Toko)
   phoneNumber: "6285646420488",
 
-  // Pesan default (floating button)
+  // Pesan default untuk tombol melayang (Floating Button)
   defaultMessage:
     "Halo Florist, saya ingin bertanya tentang produk di website Anda.",
 
-  // Pesan konsultasi
+  // Pesan otomatis untuk tombol konsultasi gratis
   consultationMessage:
     "Halo Florist, saya ingin berkonsultasi mengenai produk yang cocok untuk kebutuhan saya.",
 
-  // Pesan untuk produk tertentu
+  // Template pesan untuk pesanan produk spesifik
   productMessage: (productName: string, productUrl: string) =>
     `Halo, saya tertarik dengan produk berikut:
 Nama Produk: ${productName}
@@ -23,10 +29,10 @@ Link Produk: ${productUrl}
 };
 
 // ===============================
-// Helper Functions
+// Fungsi Pembantu (Helper Functions)
 // ===============================
 
-// URL WhatsApp default / konsultasi
+// Fungsi untuk membuat link WhatsApp (wa.me) berdasarkan pesan tertentu
 export const getWhatsAppUrl = (
   message: string = WHATSAPP_CONFIG.consultationMessage
 ) => {
@@ -35,7 +41,7 @@ export const getWhatsAppUrl = (
   )}`;
 };
 
-// URL WhatsApp untuk produk tertentu
+// Fungsi untuk membuat link WhatsApp khusus untuk satu produk
 export const getProductWhatsAppUrl = (
   productName: string,
   productUrl: string

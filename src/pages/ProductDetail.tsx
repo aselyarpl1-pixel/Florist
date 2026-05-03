@@ -1,3 +1,8 @@
+/**
+ * FILE: ProductDetail.tsx
+ * KEGUNAAN: Halaman detail produk yang menampilkan informasi lengkap satu produk.
+ * Menangani pengambilan data produk berdasarkan slug, galeri gambar, dan tombol pesan.
+ */
 import { useParams, Link, Navigate } from "react-router-dom";
 import { ArrowLeft, ShoppingBag, MessageCircle, Truck, Shield, RefreshCw, ZoomIn } from "lucide-react";
 import Layout from "@/components/layout/Layout";
@@ -14,6 +19,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+// Fungsi untuk memformat harga ke Rupiah
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -24,17 +30,17 @@ const formatPrice = (price: number) => {
 };
 
 const ProductDetail = () => {
+  // Mengambil parameter 'slug' dari URL
   const { slug } = useParams<{ slug: string }>();
   
-  // 1. Try to fetch product directly (FAST path)
+  // 1. Mencoba mengambil data produk secara langsung berdasarkan slug
   const { data: directProduct, isLoading: isLoadingDirect, isError: isDirectError } = useProductBySlug(slug || "");
   
-  // 2. Fallback: Fetch all products only if direct fetch failed (SLOW path for legacy/dirty slugs)
-  // We enable this query ONLY if direct fetch finished AND didn't return a product
+  // 2. Fallback: Mengambil semua produk jika pencarian langsung gagal (untuk slug lama/kotor)
   const shouldFetchFallback = !isLoadingDirect && !directProduct;
   const { data: allProducts = [], isLoading: isLoadingFallback } = useProducts();
   
-  // 3. Helper to clean slug (handling legacy data issues where slug might be a full URL)
+  // 3. Fungsi pembantu untuk membersihkan slug URL
   const getCleanSlug = (s: string) => {
     if (s.includes('/') || s.startsWith('http')) {
       return s.split('/').filter(Boolean).pop() || s;
@@ -42,27 +48,25 @@ const ProductDetail = () => {
     return s;
   };
 
-  // 4. Resolve the final product
+  // 4. Menentukan produk mana yang akan ditampilkan (hasil direct atau hasil fallback)
   const product = directProduct || (shouldFetchFallback ? allProducts.find(p => getCleanSlug(p.slug) === slug) : null);
   
-  // 5. Fetch related products (Optimized: fetch by category instead of filtering all)
+  // 5. Mengambil produk terkait berdasarkan kategori yang sama
   const category = product?.category;
   const { data: relatedProductsData = [], isLoading: isLoadingRelated } = useProductsByCategory(
     category || "", 
     4,
-    !!category // Only fetch if we have a category
+    !!category // Hanya fetch jika kategori tersedia
   );
   
-  // Use optimized related products if available, otherwise fallback to filtering all (if all loaded)
+  // Memfilter agar produk yang sedang dilihat tidak muncul kembali di daftar 'Produk Serupa'
   const relatedProducts = relatedProductsData.length > 0 
     ? relatedProductsData.filter(p => p.id !== product?.id).slice(0, 4)
     : (allProducts.length > 0 && product ? allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4) : []);
 
   const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
 
-  // Loading state: 
-  // - If we are fetching direct, we are loading.
-  // - If direct finished but no product, and we are fetching fallback, we are loading.
+  // Menampilkan indikator loading saat data sedang diambil
   const isLoading = isLoadingDirect || (shouldFetchFallback && isLoadingFallback && !product);
 
   if (isLoading) {
@@ -75,10 +79,12 @@ const ProductDetail = () => {
     );
   }
 
+  // Menampilkan halaman 404 jika produk tidak ditemukan
   if (!product) {
     return <NotFound />;
   }
 
+  // Logika perhitungan diskon
   const discount = (product.original_price || 0) > product.price
     ? Math.round((((product.original_price || 0) - product.price) / (product.original_price || 1)) * 100)
     : 0; 
@@ -87,7 +93,7 @@ const ProductDetail = () => {
   const isExclusive = product.is_exclusive;
   const isPremium = product.is_premium;
 
-  // Robust image handling
+  // Penanganan Gambar Produk (bisa berupa array atau string tunggal)
   let rawImages: string[] = [];
   if (product.images && Array.isArray(product.images) && product.images.length > 0) {
     rawImages = product.images;
@@ -102,7 +108,7 @@ const ProductDetail = () => {
 
   return (
     <Layout>
-      {/* Breadcrumb */}
+      {/* Bagian Breadcrumb (Navigasi Jejak) */}
       <div className="bg-secondary/50 py-4">
         <div className="container-custom">
           <div className="flex items-center gap-2 text-sm">
@@ -119,10 +125,10 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* Product Detail */}
+      {/* Konten Utama Detail Produk */}
       <section className="section-padding bg-background">
         <div className="container-custom">
-          {/* Back Button */}
+          {/* Tombol Kembali */}
           <Link
             to="/katalog"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
@@ -132,7 +138,7 @@ const ProductDetail = () => {
           </Link>
 
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Image Gallery */}
+            {/* Bagian Galeri Gambar */}
             <div className="space-y-4">
               <Dialog>
                 <DialogTrigger asChild>
@@ -162,19 +168,19 @@ const ProductDetail = () => {
               </Dialog>
             </div>
 
-            {/* Product Info */}
+            {/* Bagian Informasi Produk */}
             <div className="space-y-6">
-              {/* Category */}
+              {/* Kategori */}
               <p className="text-primary font-medium tracking-wider uppercase text-sm">
                 {product.category.replace("-", " ")}
               </p>
 
-              {/* Title */}
+              {/* Judul Produk */}
               <h1 className="heading-section text-foreground">
                 {product.name}
               </h1>
 
-              {/* Badges */}
+              {/* Label Status (Badges) */}
               <div className="flex flex-wrap gap-2">
                 {isBestSeller && (
                   <span className="bg-blue-600 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded shadow-sm">
@@ -198,7 +204,7 @@ const ProductDetail = () => {
                 )}
               </div>
 
-              {/* Price */}
+              {/* Bagian Harga */}
               <div className="space-y-3">
                 <div className="flex items-baseline gap-3 flex-wrap">
                   <span className="font-heading text-4xl md:text-5xl font-bold text-primary">
@@ -210,6 +216,7 @@ const ProductDetail = () => {
                     </span>
                   )}
                 </div>
+                {/* Informasi Hemat/Promo */}
                 {discount > 0 && (
                   <div className="flex items-center gap-2">
                     <span className="bg-red-600 text-white text-sm font-bold px-2 py-1 rounded shadow-sm">
@@ -222,12 +229,12 @@ const ProductDetail = () => {
                 )}
               </div>
 
-              {/* Description */}
+              {/* Deskripsi Produk */}
               <p className="text-muted-foreground leading-relaxed">
                 {product.description}
               </p>
 
-              {/* CTA Buttons */}
+              {/* Tombol Pesan (WhatsApp) */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <a
                   href={product.product_url || getProductWhatsAppUrl(product.name, `${siteUrl}/produk/${product.slug}`)}
@@ -256,7 +263,7 @@ const ProductDetail = () => {
                 </a>
               </div>
 
-              {/* Features */}
+              {/* Fitur Tambahan */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-border">
                 <div className="flex items-center gap-3 text-sm">
                   <Truck className="w-5 h-5 text-primary" />
@@ -276,8 +283,7 @@ const ProductDetail = () => {
         </div>
       </section>
 
-      {/* Related Products */}
-      {/* Related Products */}
+      {/* Bagian Produk Terkait */}
       {relatedProducts.length > 0 && (
         <section className="section-padding bg-secondary/50">
           <div className="container-custom">

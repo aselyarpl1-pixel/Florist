@@ -1,24 +1,30 @@
-// API Service Layer using Supabase
+/**
+ * FILE: api.ts
+ * KEGUNAAN: Layer layanan API untuk berkomunikasi dengan database Supabase.
+ * Berisi fungsi-fungsi untuk mengambil, menambah, mengubah, dan menghapus data produk.
+ */
+// API Service Layer menggunakan Supabase
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { products as localProducts, Product as LocalProduct } from "@/data/products";
 import { testimonials as localTestimonials, Testimonial as LocalTestimonial } from "@/data/testimonials";
 
-/* ==================== PRODUCTS ==================== */
+/* ==================== PRODUK ==================== */
 
+// Definisi tipe data Produk berdasarkan struktur tabel di database
 export type Product = Database["public"]["Tables"]["products"]["Row"] & {
   original_price?: number;
   short_description?: string;
   product_url?: string;
   images?: string[];
   sort_order?: number;
-  // Additional tags matching DB columns
+  // Label tambahan yang sesuai dengan kolom DB
   is_best_seller?: boolean;
   is_exclusive?: boolean;
   is_premium?: boolean;
 };
 
-// Helper to map local product to API structure for fallback
+// Fungsi pembantu untuk mengubah format produk lokal menjadi format API
 const mapToApiProduct = (p: LocalProduct): Product => ({
   ...p,
   created_at: new Date().toISOString(),
@@ -32,7 +38,6 @@ const mapToApiProduct = (p: LocalProduct): Product => ({
   is_premium: p.premium,
   is_active: true,
   short_description: p.shortDescription,
-  // Ensure we map snake_case fields that might be used
   category: p.category,
   description: p.description,
   id: p.id,
