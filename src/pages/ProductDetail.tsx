@@ -87,7 +87,16 @@ const ProductDetail = () => {
   const isExclusive = product.is_exclusive;
   const isPremium = product.is_premium;
 
-  const rawImages = product.images || (product.image_url ? [product.image_url] : []);
+  // Robust image handling
+  let rawImages: string[] = [];
+  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+    rawImages = product.images;
+  } else if (product.image_url) {
+    rawImages = [product.image_url];
+  } else if (product.images && typeof product.images === 'string') {
+    rawImages = [product.images as string];
+  }
+
   const mainImage = getProductImageUrl(rawImages[0]);
   const images = rawImages.map(getProductImageUrl);
 

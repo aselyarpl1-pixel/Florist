@@ -24,7 +24,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
   
   // Handle both API and data product types
-  const rawImages = 'images' in product && product.images ? product.images : ('image_url' in product && product.image_url ? [product.image_url] : []);
+  let rawImages: string[] = [];
+  
+  if ('images' in product && Array.isArray(product.images) && product.images.length > 0) {
+    rawImages = product.images;
+  } else if ('image_url' in product && product.image_url) {
+    rawImages = [product.image_url];
+  } else if ('images' in product && typeof product.images === 'string') {
+    // Handle case where images might be a single string instead of array
+    rawImages = [product.images as string];
+  }
   
   const imageUrl = getProductImageUrl(rawImages[0]);
   const shortDescription = 'shortDescription' in product ? product.shortDescription : product.description?.substring(0, 100);

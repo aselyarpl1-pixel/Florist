@@ -56,13 +56,16 @@ export const getProductImageUrl = (path: string | null | undefined): string => {
   }
 
   // 2. Check if it's a known local asset filename
-  const fileName = path.split('/').pop() || "";
+  // Strip query parameters and hashes first
+  const cleanPath = path.split('?')[0].split('#')[0];
+  const fileName = cleanPath.split('/').pop() || "";
+  
   if (localImageMap[fileName]) {
     return localImageMap[fileName];
   }
 
-  // 3. If it looks like a local asset path, return it
-  if (path.startsWith('/src/') || path.startsWith('/assets/') || path.includes('assets/products/')) {
+  // 3. If it's already an imported Vite asset (usually starts with /src/ or /assets/ or /@fs/)
+  if (path.startsWith('/') || path.startsWith('@fs/')) {
     return path;
   }
 

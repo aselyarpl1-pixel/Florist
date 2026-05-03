@@ -50,6 +50,28 @@ const mapToApiTestimonial = (t: LocalTestimonial): Testimonial => ({
   is_approved: true,
 } as unknown as Testimonial);
 
+// Helper to merge local and API products
+const mergeProducts = (apiProducts: Product[], localProducts: Product[]): Product[] => {
+  const merged = [...apiProducts];
+  
+  localProducts.forEach(localP => {
+    const index = merged.findIndex(p => p.slug === localP.slug);
+    if (index === -1) {
+      merged.push(localP);
+    } else {
+      // If product exists in DB, merge local images if DB image is missing
+      if (!merged[index].image_url && localP.image_url) {
+        merged[index].image_url = localP.image_url;
+      }
+      if ((!merged[index].images || merged[index].images?.length === 0) && localP.images) {
+        merged[index].images = localP.images;
+      }
+    }
+  });
+  
+  return merged;
+};
+
 export const productsApi = {
   getAll: async () => {
     // Skip Supabase if not configured to avoid 406 errors
@@ -68,17 +90,7 @@ export const productsApi = {
       const apiProducts = data as Product[] || [];
       const localApiProducts = localProducts.map(mapToApiProduct);
 
-      // Merge results: prefer Supabase products over local ones if slugs match
-      const mergedProducts = [...apiProducts];
-      
-      localApiProducts.forEach(localP => {
-        const exists = mergedProducts.some(p => p.slug === localP.slug);
-        if (!exists) {
-          mergedProducts.push(localP);
-        }
-      });
-      
-      return mergedProducts;
+      return mergeProducts(apiProducts, localApiProducts);
     } catch (error) {
       console.warn("Supabase fetch failed, falling back to local data:", error);
       return localProducts.map(mapToApiProduct);
@@ -174,15 +186,7 @@ export const productsApi = {
         .filter(p => p.category === category)
         .map(mapToApiProduct);
 
-      // Merge results
-      const mergedProducts = [...apiProducts];
-      localApiProducts.forEach(localP => {
-        if (!mergedProducts.some(p => p.slug === localP.slug)) {
-          mergedProducts.push(localP);
-        }
-      });
-
-      return mergedProducts.slice(0, limit);
+      return mergeProducts(apiProducts, localApiProducts).slice(0, limit);
     } catch (error) {
       console.warn("Supabase fetch failed, falling back to local data:", error);
       return localProducts
