@@ -220,39 +220,50 @@ const Products = () => {
       return;
     }
 
-    setIsUploading(true); // Reuse this state as "isProcessing"
+    setIsUploading(true); // Mulai proses simpan
     try {
-      let imageUrl = formData.image_url;
+      let finalImageUrl = formData.image_url;
 
-      // Handle Image Upload
+      // 1. Upload gambar jika ada file yang dipilih
       if (selectedFile) {
+        console.log("Uploading image:", selectedFile.name);
         try {
-          imageUrl = await uploadImage(selectedFile);
+          const uploadResult = await uploadProductImage(selectedFile);
+          if (uploadResult.success && uploadResult.url) {
+            finalImageUrl = uploadResult.url;
+            console.log("Upload success, URL:", finalImageUrl);
+          } else {
+            throw new Error(uploadResult.error || "Gagal mengupload gambar");
+          }
         } catch (error: any) {
           console.error("Upload failed:", error);
-          toast.error("Gagal mengupload gambar: " + (error.message || "Unknown error"));
+          toast.error("Gagal mengupload gambar: " + (error.message || "Terjadi kesalahan"));
           setIsUploading(false);
           return;
         }
       }
 
+      // 2. Persiapkan data untuk disimpan
+      const productData = {
+        ...formData,
+        image_url: finalImageUrl,
+        slug: (formData.slug || formData.name
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")).trim(),
+      };
+
+      console.log("Saving product data:", productData);
+
+      // 3. Simpan ke Supabase
       if (editingProduct) {
         await updateMutation.mutateAsync({
           id: editingProduct.id,
-          updates: { ...formData, image_url: imageUrl },
+          updates: productData,
         });
         toast.success("Produk berhasil diperbarui");
       } else {
-        const slug = (formData.slug || formData.name
-          .toLowerCase()
-          .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9-]/g, "")).trim();
-
-        await createMutation.mutateAsync({
-          ...formData,
-          image_url: imageUrl,
-          slug,
-        });
+        await createMutation.mutateAsync(productData);
         toast.success("Produk berhasil ditambahkan");
       }
       
@@ -260,7 +271,7 @@ const Products = () => {
       queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
     } catch (error: any) {
       console.error("Error saving product:", error);
-      toast.error("Gagal menyimpan produk: " + (error.message || "Terjadi kesalahan"));
+      toast.error("Gagal menyimpan produk: " + (error.message || "Terjadi kesalahan database"));
     } finally {
       setIsUploading(false);
     }
