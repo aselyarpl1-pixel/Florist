@@ -11,13 +11,13 @@ interface ProductCardProps {
 }
 
 const formatPrice = (price: number | undefined) => {
-  if (price === undefined) return "";
+  if (price === undefined || price === null) return "";
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(price);
+  }).format(price).replace(/\s/g, "");
 };
 
 const ProductCard = ({ product }: ProductCardProps) => {
