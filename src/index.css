@@ -32,7 +32,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 45 64% 52%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --gold: 45 64% 52%;
     --gold-light: 45 64% 90%;
@@ -41,7 +41,6 @@
     --cream: 40 100% 98%;
     --champagne: 38 43% 89%;
     
-    /* Sidebar variables */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -81,7 +80,6 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 45 64% 52%;
     
-    /* Sidebar dark variables */
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -95,82 +93,31 @@
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    @apply border-border;
   }
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background text-foreground;
   }
 }
 
-/* Custom Utilities from the original design if any */
 @layer utilities {
   .section-padding {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
-  }
-  @media (min-width: 768px) {
-    .section-padding {
-      padding-top: 6rem;
-      padding-bottom: 6rem;
-    }
+    @apply py-16 md:py-24;
   }
   
   .container-custom {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  @media (min-width: 768px) {
-    .container-custom {
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
+    @apply container mx-auto px-4 md:px-6;
   }
   
   .heading-section {
-    font-family: var(--heading);
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-    font-weight: 700;
-  }
-  @media (min-width: 768px) {
-    .heading-section {
-      font-size: 2.25rem;
-      line-height: 2.5rem;
-    }
-  }
-  @media (min-width: 1024px) {
-    .heading-section {
-      font-size: 3rem;
-      line-height: 1;
-    }
+    @apply font-heading text-3xl md:text-4xl lg:text-5xl font-bold;
   }
   
   .btn-primary {
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-  }
-  .btn-primary:hover {
-    background-color: hsl(var(--primary) / 0.9);
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-colors;
   }
   
   .btn-outline-gold {
-    border-width: 2px;
-    border-color: hsl(var(--primary));
-    color: hsl(var(--primary));
-    transition-all: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-  }
-  .btn-outline-gold:hover {
-    background-color: hsl(var(--primary));
-    color: white;
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all;
   }
 }
