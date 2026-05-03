@@ -283,9 +283,9 @@ export default function AdminProducts() {
 
               <Input
                 placeholder="URL Gambar (opsional)"
-                value={formData.image}
+                value={formData.image_url}
                 onChange={(e) =>
-                  setFormData({ ...formData, image: e.target.value })
+                  setFormData({ ...formData, image_url: e.target.value })
                 }
               />
 
