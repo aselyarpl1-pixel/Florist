@@ -67,7 +67,8 @@ const Cities = () => {
 
   // Auto-sync default cities if list is empty
   useEffect(() => {
-    if (!isLoading && remoteCities.length === 0) {
+    // Only run if not loading, remoteCities is truly empty, and mutation isn't already running
+    if (!isLoading && remoteCities.length === 0 && !saveMutation.isPending && !saveMutation.isSuccess) {
       const syncDefaultCities = async () => {
         try {
           const allCities: CityData[] = [];
@@ -84,15 +85,17 @@ const Cities = () => {
           });
           
           await saveMutation.mutateAsync(allCities);
+          // Only show toast once
           toast.success(`Data kota berhasil diinisialisasi (${allCities.length} kota)`);
         } catch (error) {
           console.error("Failed to auto-sync cities:", error);
+          // Don't show error toast here to prevent spamming if it fails repeatedly
         }
       };
       
       syncDefaultCities();
     }
-  }, [isLoading, remoteCities.length, saveMutation]);
+  }, [isLoading, remoteCities.length, saveMutation.isPending, saveMutation.isSuccess]);
 
   // Filter cities based on search query
   const filteredCities = useMemo(() => {

@@ -495,10 +495,18 @@ export const citiesApi = {
       if (error) {
         // Silently return empty array if table is missing or error occurs
         // to prevent console spam while database is being set up
+        console.warn("Supabase fetch failed for cities:", error);
         return [];
       }
       
-      return parseSettingsValue<City[]>(data?.value) || [];
+      const parsedValue = parseSettingsValue<City[]>(data?.value);
+      if (!parsedValue || parsedValue.length === 0) {
+        // If data is empty in Supabase, try to check localStorage as fallback
+        const local = localStorage.getItem("cities");
+        return local ? JSON.parse(local) : [];
+      }
+      
+      return parsedValue;
     } catch (e) {
       return [];
     }
