@@ -64,7 +64,6 @@ const AdminLayout = () => {
           {/* Logo */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-border">
             <Link to="/admin/dashboard" className="flex items-center gap-2">
-              <img src="/favicon.ico" alt="Florist Logo" className="w-6 h-6 object-contain" />
               <span className="font-heading text-xl font-semibold text-foreground">
                 Florist
               </span>
