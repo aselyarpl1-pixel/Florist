@@ -91,8 +91,10 @@ const Testimonials = () => {
   };
 
   // Auto-sync default testimonials if list is empty
+  const [hasAttemptedSync, setHasAttemptedSync] = useState(false);
   useEffect(() => {
-    if (!isLoading && testimonials.length === 0) {
+    if (!isLoading && testimonials.length === 0 && !hasAttemptedSync) {
+      setHasAttemptedSync(true);
       const syncDefaultTestimonials = async () => {
         try {
           let count = 0;

@@ -73,7 +73,7 @@ const Cities = () => {
   // Auto-sync default cities if list is empty
   useEffect(() => {
     // Only run if not loading, remoteCities is truly empty, and mutation isn't already running
-    if (!isLoading && remoteCities.length === 0 && !saveMutation.isPending && !saveMutation.isSuccess) {
+    if (!isLoading && remoteCities.length === 0 && !saveMutation.isPending && !saveMutation.isSuccess && !saveMutation.isError) {
       const syncDefaultCities = async () => {
         try {
           const allCities: CityData[] = [];

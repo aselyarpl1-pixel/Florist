@@ -61,8 +61,10 @@ const Products = () => {
   const deleteMutation = useDeleteProduct();
 
   // Sinkronisasi otomatis: Jika database kosong, isi dengan data produk default (local data)
+  const [hasAttemptedSync, setHasAttemptedSync] = useState(false);
   useEffect(() => {
-    if (!isLoading && products.length === 0) {
+    if (!isLoading && products.length === 0 && !hasAttemptedSync) {
+      setHasAttemptedSync(true);
       const syncDefaultProducts = async () => {
         try {
           let count = 0;
