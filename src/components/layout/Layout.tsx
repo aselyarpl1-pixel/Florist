@@ -1,3 +1,8 @@
+/**
+ * FILE: Layout.tsx
+ * KEGUNAAN: Pembungkus utama (Wrapper) untuk semua halaman publik.
+ * Menggabungkan Header, Konten Utama, Footer, dan tombol melayang (WhatsApp & Floating Menu).
+ */
 import { ReactNode } from "react";
 import Header from "./Header";
 import Footer from "./Footer";

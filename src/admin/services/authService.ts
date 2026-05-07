@@ -1,3 +1,8 @@
+/**
+ * FILE: authService.ts
+ * KEGUNAAN: Layanan autentikasi untuk berinteraksi langsung dengan Supabase Auth.
+ * Menyediakan fungsi teknis untuk Login, Register, dan Logout bagi Admin.
+ */
 import { supabase } from "@/integrations/supabase/client";
 import { AdminUser, LoginCredentials } from "../types";
 

@@ -1,3 +1,8 @@
+/**
+ * FILE: CTASection.tsx
+ * KEGUNAAN: Bagian "Call to Action" di halaman beranda.
+ * Mengajak pengguna untuk melakukan konsultasi gratis via WhatsApp.
+ */
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";

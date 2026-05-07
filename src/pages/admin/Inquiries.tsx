@@ -1,3 +1,8 @@
+/**
+ * FILE: Inquiries.tsx (Admin)
+ * KEGUNAAN: Mengelola data pertanyaan atau pesan masuk (Inquiries) dari pelanggan.
+ * Admin dapat memantau status pertanyaan dan menambahkan catatan tindak lanjut.
+ */
 import { useState, useEffect, useCallback } from "react";
 import {
   Phone,

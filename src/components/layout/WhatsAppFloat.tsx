@@ -1,3 +1,8 @@
+/**
+ * FILE: WhatsAppFloat.tsx
+ * KEGUNAAN: Tombol WhatsApp melayang di pojok kanan bawah.
+ * Pesan otomatis menyesuaikan apakah user sedang melihat produk spesifik atau tidak.
+ */
 import { FaWhatsapp } from "react-icons/fa";
 import { getWhatsAppUrl, getProductWhatsAppUrl } from "@/config/whatsapp";
 import { useLocation, useParams } from "react-router-dom";

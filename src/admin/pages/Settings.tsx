@@ -1,3 +1,8 @@
+/**
+ * FILE: Settings.tsx
+ * KEGUNAAN: Mengelola pengaturan umum website seperti navigasi menu dan konten footer.
+ * Admin dapat mengubah link menu, alamat, nomor telepon, dan link sosial media di footer.
+ */
 import { useState, useEffect } from "react";
 import { Save, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -1,3 +1,8 @@
+/**
+ * FILE: Cities.tsx
+ * KEGUNAAN: Mengelola daftar kota dan wilayah pengiriman.
+ * Admin dapat menambah, mengedit, atau menghapus kota serta mengatur nomor WhatsApp khusus tiap wilayah.
+ */
 import { useState, useMemo, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";

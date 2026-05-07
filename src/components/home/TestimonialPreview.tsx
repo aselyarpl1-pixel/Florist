@@ -1,3 +1,8 @@
+/**
+ * FILE: TestimonialPreview.tsx
+ * KEGUNAAN: Menampilkan cuplikan (3 buah) testimoni pelanggan di halaman beranda.
+ * Memberikan bukti sosial (social proof) untuk meningkatkan kepercayaan calon pembeli.
+ */
 import { Star, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";

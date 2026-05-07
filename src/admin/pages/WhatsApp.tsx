@@ -1,3 +1,8 @@
+/**
+ * FILE: WhatsApp.tsx
+ * KEGUNAAN: Mengelola konfigurasi WhatsApp toko.
+ * Admin dapat mengubah nomor telepon tujuan, pesan otomatis, dan template pesan produk.
+ */
 import { useState } from "react";
 import { Save, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";

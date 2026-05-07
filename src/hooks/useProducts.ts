@@ -1,3 +1,8 @@
+/**
+ * FILE: useProducts.ts
+ * KEGUNAAN: Custom hooks untuk mengelola data produk menggunakan React Query.
+ * Mencakup operasi pengambilan (fetch), pembuatan (create), pembaruan (update), dan penghapusan (delete).
+ */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productsApi } from "@/lib/api";
 import type { Product } from "@/lib/api";

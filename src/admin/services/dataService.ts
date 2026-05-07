@@ -1,7 +1,8 @@
-// Data service for managing data
-// In production, this would make API calls to a backend
-// For now, we'll use localStorage to simulate persistence
-
+/**
+ * FILE: dataService.ts
+ * KEGUNAAN: Layanan pengelolaan data cadangan (LocalStorage).
+ * Digunakan sebagai alternatif penyimpanan data sementara jika koneksi database utama bermasalah.
+ */
 import { Product, products as initialProducts } from "@/data/products";
 import { Testimonial, testimonials as initialTestimonials } from "@/data/testimonials";
 

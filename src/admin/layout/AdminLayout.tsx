@@ -1,3 +1,8 @@
+/**
+ * FILE: AdminLayout.tsx
+ * KEGUNAAN: Struktur tata letak induk (Layout) untuk seluruh halaman admin.
+ * Menyediakan Sidebar navigasi, Header, dan area konten utama yang konsisten.
+ */
 import { useState } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { 

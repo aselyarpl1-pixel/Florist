@@ -1,3 +1,8 @@
+/**
+ * FILE: ProtectedRoute.tsx
+ * KEGUNAAN: Komponen pelindung rute (Route Guard).
+ * Memastikan hanya admin yang sudah login yang bisa mengakses halaman tertentu.
+ */
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Loader2 } from "lucide-react";

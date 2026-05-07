@@ -1,3 +1,8 @@
+/**
+ * FILE: index.ts (Types)
+ * KEGUNAAN: Definisi tipe data (TypeScript Interfaces) yang digunakan di seluruh Panel Admin.
+ * Mencakup tipe data untuk User, Konten Halaman, Navigasi, dan Pengaturan Toko.
+ */
 // Admin Types
 
 export interface AdminUser {

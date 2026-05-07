@@ -1,3 +1,8 @@
+/**
+ * FILE: Login.tsx (Admin)
+ * KEGUNAAN: Halaman login untuk mengakses Panel Admin.
+ * Dilengkapi fitur autentikasi email/password dan registrasi admin baru.
+ */
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";

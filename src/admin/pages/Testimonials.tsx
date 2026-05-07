@@ -1,3 +1,8 @@
+/**
+ * FILE: Testimonials.tsx (Admin)
+ * KEGUNAAN: Mengelola ulasan pelanggan (Testimoni).
+ * Admin dapat menambah testimoni baru, mengedit yang ada, atau menghapus ulasan serta mengelola teks halaman testimoni.
+ */
 import { useState, useMemo, useEffect } from "react";
 import { Plus, Pencil, Trash2, Star, Search, ChevronLeft, ChevronRight, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";

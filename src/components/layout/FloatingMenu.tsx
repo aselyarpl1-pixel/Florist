@@ -1,3 +1,8 @@
+/**
+ * FILE: FloatingMenu.tsx
+ * KEGUNAAN: Menu melayang (Floating) di pojok kanan bawah.
+ * Digunakan untuk promosi cepat seperti "Papan Bunga" atau "Katalog Natal".
+ */
 import { Link } from "react-router-dom";
 import { Gift, TreePine, ExternalLink } from "lucide-react";
 import { useFloatingMenu } from "@/hooks/useFloatingMenu";

@@ -1,3 +1,8 @@
+/**
+ * FILE: HomePage.tsx
+ * KEGUNAAN: Mengelola seluruh konten teks dan pengaturan di halaman beranda (Home).
+ * Mencakup Hero Section, Fitur Keunggulan, CTA, dan Menu WhatsApp Melayang (Floating Menu).
+ */
 import { useState, useEffect } from "react";
 import { Save, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";

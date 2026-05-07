@@ -1,3 +1,8 @@
+/**
+ * FILE: useAuth.ts
+ * KEGUNAAN: Custom hook untuk mengelola status login Admin.
+ * Menangani proses Login, Register, Logout, dan pemantauan sesi aktif secara real-time.
+ */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";

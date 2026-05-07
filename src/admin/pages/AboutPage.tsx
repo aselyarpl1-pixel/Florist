@@ -1,3 +1,8 @@
+/**
+ * FILE: AboutPage.tsx
+ * KEGUNAAN: Mengelola konten halaman "Tentang Kami".
+ * Admin dapat mengubah narasi sejarah, judul hero, dan statistik pencapaian toko.
+ */
 import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";

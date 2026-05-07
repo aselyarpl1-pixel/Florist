@@ -1,3 +1,8 @@
+/**
+ * FILE: Dashboard.tsx
+ * KEGUNAAN: Halaman utama panel admin yang menampilkan ringkasan data.
+ * Mencakup statistik total produk, testimoni, kota, dan akses cepat ke fitur manajemen.
+ */
 import { Package, MessageSquare, MapPin, MessageCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useProducts } from "@/hooks/useProducts";

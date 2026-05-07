@@ -1,3 +1,8 @@
+/**
+ * FILE: WhyChooseUs.tsx
+ * KEGUNAAN: Bagian keunggulan toko (Value Proposition) di halaman beranda.
+ * Menampilkan 4 alasan utama mengapa pelanggan harus memilih Florist.
+ */
 import { Truck, Award, Clock, HeartHandshake } from "lucide-react";
 import { useHomeContent } from "@/hooks/useHomeContent";
 
