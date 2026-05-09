@@ -28,32 +28,28 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [
-          allProducts,
-          allTestimonials,
-          pendingTestimonialsRes,
-          inquiriesRes,
-          pendingInquiriesRes,
-          statsRes,
-        ] = await Promise.all([
-          productsApi.getAll(),
-          testimonialsApi.getAll(),
-          supabase.from("testimonials").select("id", { count: "exact", head: true }).eq("is_approved", false),
-          supabase.from("inquiries").select("id", { count: "exact", head: true }),
-          supabase.from("inquiries").select("id", { count: "exact", head: true }).eq("status", "pending"),
-          supabase.from("site_stats").select("page_views").order("date", { ascending: false }).limit(30),
-        ]);
+          const [
+            allProducts,
+            allTestimonials,
+            pendingTestimonialsRes,
+            statsRes,
+          ] = await Promise.all([
+            productsApi.getAll(),
+            testimonialsApi.getAll(),
+            supabase.from("testimonials").select("id", { count: "exact", head: true }).eq("is_approved", false),
+            supabase.from("site_stats").select("page_views").order("date", { ascending: false }).limit(30),
+          ]);
 
-        const totalPageViews = statsRes.data?.reduce((sum, stat) => sum + (stat.page_views || 0), 0) || 0;
+          const totalPageViews = statsRes.data?.reduce((sum, stat) => sum + (stat.page_views || 0), 0) || 0;
 
-        setStats({
-          totalProducts: allProducts.length,
-          totalTestimonials: allTestimonials.length,
-          pendingTestimonials: pendingTestimonialsRes.count || 0,
-          totalInquiries: inquiriesRes.count || 0,
-          pendingInquiries: pendingInquiriesRes.count || 0,
-          pageViews: totalPageViews,
-        });
+          setStats({
+            totalProducts: allProducts.length,
+            totalTestimonials: allTestimonials.length,
+            pendingTestimonials: pendingTestimonialsRes.count || 0,
+            totalInquiries: 0,
+            pendingInquiries: 0,
+            pageViews: totalPageViews,
+          });
       } catch (error) {
         console.error("Error fetching stats:", error);
       } finally {
