@@ -3,15 +3,10 @@
  * KEGUNAAN: Halaman Kontak yang berisi informasi alamat, telepon, email,
  * dan jam operasional toko, serta integrasi peta Google Maps.
  */
-import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, MessageCircle, Instagram, Facebook, Send } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, MessageCircle, Instagram, Facebook } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 import { getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
-import { supabase } from "@/integrations/supabase/client";
 
 // Data statis untuk informasi kontak
 const contactInfo = [
@@ -42,61 +37,6 @@ const contactInfo = [
 ];
 
 const Kontak = () => {
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const { error } = await supabase.from("inquiries").insert([
-        {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          message: formData.message,
-          status: "pending",
-        },
-      ]);
-
-      if (error) throw error;
-
-      toast({
-        title: "Pesan Terkirim!",
-        description: "Terima kasih, tim kami akan segera menghubungi Anda.",
-      });
-
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        message: "",
-      });
-    } catch (error) {
-      console.error("Error submitting inquiry:", error);
-      toast({
-        title: "Gagal Mengirim Pesan",
-        description: "Terjadi kesalahan saat mengirim pesan. Silakan coba lagi.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <Layout>
       {/* Bagian Hero: Judul Halaman Kontak */}
@@ -122,14 +62,14 @@ const Kontak = () => {
         <div className="container-custom">
           <div className="grid lg:grid-cols-2 gap-12">
             
-            {/* Sisi Kiri: Daftar Kartu Info & Form */}
+            {/* Sisi Kiri: Daftar Kartu Info (Alamat, Telp, dll) */}
             <div className="space-y-8">
               <div>
                 <h2 className="heading-section text-foreground mb-4">
                   Informasi Kontak
                 </h2>
                 <p className="text-muted-foreground">
-                  Pilih cara yang paling nyaman untuk menghubungi kami atau isi formulir di bawah.
+                  Pilih cara yang paling nyaman untuk menghubungi kami.
                 </p>
               </div>
 
@@ -162,82 +102,6 @@ const Kontak = () => {
                     )}
                   </div>
                 ))}
-              </div>
-
-              {/* Form Hubungi Kami */}
-              <div className="bg-card p-6 md:p-8 rounded-xl shadow-soft border border-border mt-8">
-                <h3 className="font-heading text-2xl font-bold text-foreground mb-6">
-                  Kirim Pesan
-                </h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label htmlFor="name" className="text-sm font-medium">
-                        Nama Lengkap *
-                      </label>
-                      <Input
-                        id="name"
-                        name="name"
-                        required
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="Masukkan nama Anda"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="phone" className="text-sm font-medium">
-                        Nomor WhatsApp *
-                      </label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        required
-                        value={formData.phone}
-                        onChange={handleChange}
-                        placeholder="Contoh: 081234567890"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="email" className="text-sm font-medium">
-                      Email
-                    </label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="Masukkan alamat email (opsional)"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="message" className="text-sm font-medium">
-                      Pesan *
-                    </label>
-                    <Textarea
-                      id="message"
-                      name="message"
-                      required
-                      value={formData.message}
-                      onChange={handleChange}
-                      placeholder="Tuliskan pertanyaan atau pesanan Anda di sini..."
-                      rows={4}
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full gap-2" 
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Mengirim..." : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        Kirim Pesan
-                      </>
-                    )}
-                  </Button>
-                </form>
               </div>
             </div>
             {/* Sisi Kanan: Peta Google Maps (Placeholder) */}
