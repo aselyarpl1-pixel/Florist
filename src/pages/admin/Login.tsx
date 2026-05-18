@@ -34,11 +34,18 @@ const AdminLogin = () => {
       const { error } = await signIn(email.trim(), password);
 
       if (error) {
+        let errorMessage = error.message;
+        
+        // Memperjelas pesan error 400 dari Supabase
+        if (error.message === "Invalid login credentials") {
+          errorMessage = "Email atau password salah. Pastikan akun sudah terdaftar.";
+        } else if (error.message.includes("Email not confirmed")) {
+          errorMessage = "Email belum dikonfirmasi. Silakan cek kotak masuk email Anda.";
+        }
+
         toast({
           title: "Login Gagal",
-          description: error.message === "Invalid login credentials" 
-            ? "Email atau password salah" 
-            : error.message,
+          description: errorMessage,
           variant: "destructive",
         });
       } else {
