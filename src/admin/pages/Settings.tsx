@@ -66,24 +66,38 @@ const Settings = () => {
     }
   }, [serverNavigation, serverFooter]);
 
-  const handleSaveNavigation = () => {
-    saveNavigation(navigation, {
-      onSuccess: () => {
-        toast.success("Navigasi berhasil disimpan");
-        queryClient.invalidateQueries({ queryKey: NAVIGATION_QUERY_KEY });
-      },
-      onError: () => toast.error("Gagal menyimpan navigasi"),
-    });
+  const handleSaveNavigation = async () => {
+    try {
+      saveNavigation(navigation, {
+        onSuccess: () => {
+          toast.success("Navigasi berhasil disimpan");
+          queryClient.invalidateQueries({ queryKey: NAVIGATION_QUERY_KEY });
+        },
+        onError: (error: any) => {
+          console.error("Navigation save error:", error);
+          toast.error("Gagal menyimpan navigasi: " + (error.message || "Terjadi kesalahan"));
+        },
+      });
+    } catch (err) {
+      console.error("Unexpected error saving navigation:", err);
+    }
   };
 
-  const handleSaveFooter = () => {
-    saveFooter(footer, {
-      onSuccess: () => {
-        toast.success("Footer berhasil disimpan");
-        queryClient.invalidateQueries({ queryKey: FOOTER_SETTINGS_QUERY_KEY });
-      },
-      onError: () => toast.error("Gagal menyimpan footer"),
-    });
+  const handleSaveFooter = async () => {
+    try {
+      saveFooter(footer, {
+        onSuccess: () => {
+          toast.success("Footer berhasil disimpan");
+          queryClient.invalidateQueries({ queryKey: FOOTER_SETTINGS_QUERY_KEY });
+        },
+        onError: (error: any) => {
+          console.error("Footer save error:", error);
+          toast.error("Gagal menyimpan footer: " + (error.message || "Terjadi kesalahan"));
+        },
+      });
+    } catch (err) {
+      console.error("Unexpected error saving footer:", err);
+    }
   };
 
   const toggleMenuVisibility = (id: string) => {

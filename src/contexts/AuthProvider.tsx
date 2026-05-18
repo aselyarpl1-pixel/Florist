@@ -29,24 +29,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Efek untuk memantau perubahan status login (Login, Logout, atau Token Refresh)
   useEffect(() => {
+    let isMounted = true;
+
     const { data: { subscription } } =
       supabase.auth.onAuthStateChange(async (_, session) => {
+        if (!isMounted) return;
+
         setSession(session);
         setUser(session?.user ?? null);
 
         // Jika user login, cek apakah dia admin
         if (session?.user) {
-          const admin = await checkAdminRole(session.user.id);
-          setIsAdmin(admin);
+          try {
+            const admin = await checkAdminRole(session.user.id);
+            if (isMounted) setIsAdmin(admin);
+          } catch (err) {
+            console.error("Error checking admin role:", err);
+            if (isMounted) setIsAdmin(false);
+          }
         } else {
           setIsAdmin(false);
         }
 
-        setIsLoading(false); // Selesai memuat status login
+        if (isMounted) setIsLoading(false);
       });
 
     // Membersihkan subscription saat komponen tidak lagi digunakan
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (

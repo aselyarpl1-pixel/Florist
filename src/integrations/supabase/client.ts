@@ -36,7 +36,9 @@ export const supabase = createClient(
   supabaseAnonKey || 'placeholder-key',
   {
     auth: {
-      persistSession: false, // Sesi tidak disimpan permanen (untuk keamanan)
+      persistSession: true, // Sesi disimpan agar tidak perlu login ulang setiap refresh
+      autoRefreshToken: true,
+      detectSessionInUrl: true
     },
     global: {
       headers: {
